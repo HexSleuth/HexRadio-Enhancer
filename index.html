@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-<meta name="description" content="HexAudio & AtmosForge Studio — Real-time audio quality enhancer for radio streams and local tracks with 33 themes, Dolby Atmos spatial DSP, 48kHz synth generator, live mic monitor, and multi-format converter. No API keys.">
+<meta name="description" content="HexAudio & AtmosForge — Free real-time audio quality enhancer for radio streams & local tracks with 33 themes, Dolby Atmos spatial DSP, 24-bit WAV/Opus/MP3 converter, and live mic monitoring. Zero API keys.">
 <meta name="theme-color" content="#4b6bfb">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>HexAudio — AtmosForge Real-Time Audio Quality Enhancer</title>
+<title>HexAudio — Real-Time Audio Quality Enhancer & AtmosForge Studio</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📻</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
@@ -192,7 +192,7 @@ a { color: var(--p); }
 }
 
 /* ==========================================================================
-5. THEME PANEL & CODEC DIAGNOSTICS MODAL
+5. THEME PANEL (MOBILE BOTTOM SHEET / MODAL)
    ========================================================================== */
 .theme-panel {
   position: fixed;
@@ -380,36 +380,6 @@ a { color: var(--p); }
 }
 .custom-actions .btn { flex: 1 1 140px; }
 
-/* Codec Grid inside Diagnostics Modal */
-.codec-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-  gap: 10px;
-}
-.codec-card {
-  background: var(--b2);
-  border: 1px solid var(--tw-border);
-  border-radius: 10px;
-  padding: 12px;
-}
-.codec-card.is-supported {
-  border-color: var(--p);
-}
-.codec-card__title {
-  font-size: .78rem;
-  color: var(--tw-muted);
-  margin-bottom: 4px;
-}
-.codec-card__status {
-  font-size: .86rem;
-  font-weight: 700;
-}
-.codec-card__meta {
-  font-size: .7rem;
-  color: var(--tw-muted-2);
-  margin-top: 4px;
-}
-
 /* ==========================================================================
 6. MAIN LAYOUT
    ========================================================================== */
@@ -594,7 +564,7 @@ a { color: var(--p); }
 }
 
 /* ==========================================================================
-9. NOW PLAYING & SOURCE TOOLBAR
+9. NOW PLAYING & SOURCE CONTROLS
    ========================================================================== */
 .nowplaying {
   display: flex;
@@ -638,17 +608,21 @@ a { color: var(--p); }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.np__viz { width: 180px; height: 52px; flex: 0 0 auto; display: none; border-radius: 8px; }
-@media (min-width: 640px) { .np__viz { display: block; width: 180px; } }
-@media (min-width: 980px) { .np__viz { width: 230px; } }
+.np__viz { width: 220px; height: 52px; flex: 0 0 auto; display: block; border-radius: 8px; background: color-mix(in srgb, var(--b1) 65%, transparent); }
+@media (max-width: 639px) { .np__viz { width: 110px; height: 44px; } }
 
-.source-toolbar {
+.source-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 10px;
 }
-.source-toolbar .btn { flex: 1 1 auto; }
+.source-bar .btn {
+  flex: 1 1 150px;
+  font-size: .78rem;
+  min-height: 36px;
+  padding: 7px 11px;
+}
 
 .audio-host { margin-bottom: 14px; }
 .audio-host audio { width: 100%; height: 44px; border-radius: var(--rounded-btn); outline: none; display: block; }
@@ -716,8 +690,9 @@ a { color: var(--p); }
 }
 .btn--primary.is-on:hover { background: #15803d; }
 .btn--danger {
-  border-color: #ef4444;
-  color: #ef4444;
+  background: #dc2626;
+  color: #ffffff;
+  border-color: transparent;
 }
 
 /* Presets */
@@ -763,7 +738,7 @@ a { color: var(--p); }
   grid-template-columns: 1fr;
   gap: 14px;
 }
-@media (min-width: 640px) { .sliders { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 20px; } }
+@media (min-width: 640px) { .sliders { grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 12px 20px; } }
 .slider { display: flex; flex-direction: column; gap: 8px; }
 .slider > span {
   font-size: .74rem;
@@ -846,7 +821,7 @@ a { color: var(--p); }
 .switch__label small { opacity: .75; }
 
 /* ==========================================================================
-11. CONVERTER & MASTERING
+11. CONVERTER & CODEC INSPECTOR
    ========================================================================== */
 .converter {
   border: 1px solid var(--tw-border);
@@ -897,9 +872,10 @@ a { color: var(--p); }
 .converter__opts {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
+  align-items: center;
   margin-top: 10px;
-  font-size: .78rem;
+  font-size: .76rem;
   color: var(--tw-muted);
 }
 .converter__opts label {
@@ -915,6 +891,28 @@ a { color: var(--p); }
   min-height: 18px;
   word-break: break-word;
 }
+
+.codec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tw-border);
+}
+.codec-card {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--b2);
+  border: 1px solid var(--tw-border);
+  font-size: .72rem;
+}
+.codec-card.is-supported {
+  border-color: color-mix(in srgb, #22c55e 45%, transparent);
+}
+.codec-card__name { color: var(--tw-muted); }
+.codec-card__state { font-weight: 700; margin-top: 2px; color: var(--tw-muted); }
+.codec-card.is-supported .codec-card__state { color: #22c55e; }
 
 /* ==========================================================================
 11B. AI ACOUSTIC TUNER
@@ -1046,11 +1044,11 @@ a { color: var(--p); }
   <header class="topbar">
     <div class="brand">
       <i class="fa-solid fa-tower-broadcast"></i>
-      <h1>HexRadio<span>Enhancer · AtmosForge</span></h1>
+      <h1>HexRadio<span>Enhancer</span></h1>
     </div>
 
     <div class="badges">
-      <span id="atmosBadge" class="badge badge--muted" style="cursor:pointer;" title="Click to view full codec diagnostics">
+      <span id="atmosBadge" class="badge badge--muted">
         <i class="fa-solid fa-circle-notch fa-spin"></i> Checking Atmos…
       </span>
       <span id="ctxBadge" class="badge badge--muted">
@@ -1062,36 +1060,17 @@ a { color: var(--p); }
     </div>
 
     <div class="header-actions">
-      <button id="codecBtn" class="icon-btn" title="Spatial & Codec Inspector">
-        <i class="fa-solid fa-microchip"></i><span>Codecs</span>
-      </button>
       <button id="themeBtn" class="icon-btn icon-btn--primary" title="Choose theme">
         <i class="fa-solid fa-palette"></i><span>Themes</span>
       </button>
     </div>
   </header>
 
-  <!-- ============ CODEC DIAGNOSTICS MODAL ============ -->
-  <div id="codecPanel" class="theme-panel" role="dialog" aria-label="Spatial Codec Inspector">
-    <div class="theme-panel__content">
-      <div class="theme-panel__head">
-        <h2><i class="fa-solid fa-microchip"></i> MediaCapabilities &amp; Dolby Atmos Codec Inspector</h2>
-        <button id="closeCodecPanel" class="theme-panel__close" aria-label="Close">
-          <i class="fa-solid fa-xmark"></i> Close
-        </button>
-      </div>
-      <p style="margin:0 0 12px;font-size:.8rem;color:var(--tw-muted);">
-        Real-time hardware &amp; browser decoder probe via <code>navigator.mediaCapabilities.decodingInfo()</code>. Even when native hardware Atmos bitstreams are unsupported, AtmosForge's 48 kHz Web Audio Haas spatializer renders binaural width in real time.
-      </p>
-      <div id="codecGrid" class="codec-grid"></div>
-    </div>
-  </div>
-
   <!-- ============ THEME PANEL ============ -->
   <div id="themePanel" class="theme-panel" role="dialog" aria-label="Theme picker">
     <div class="theme-panel__content">
       <div class="theme-panel__head">
-        <h2><i class="fa-solid fa-palette"></i> Theme (33 Palettes)</h2>
+        <h2><i class="fa-solid fa-palette"></i> Theme</h2>
         <button id="closeThemePanel" class="theme-panel__close" aria-label="Close">
           <i class="fa-solid fa-xmark"></i> Close
         </button>
@@ -1125,7 +1104,7 @@ a { color: var(--p); }
     <!-- LEFT: STATIONS -->
     <section class="panel panel--stations">
       <div class="panel__head">
-        <h2><i class="fa-solid fa-radio"></i> AI Radio (No API Key)</h2>
+        <h2><i class="fa-solid fa-radio"></i>AI Radio (no API key)</h2>
       </div>
 
       <div class="search">
@@ -1153,28 +1132,25 @@ a { color: var(--p); }
       </ul>
     </section>
 
-    <!-- RIGHT: PLAYER & ATMOSFORGE DSP -->
+    <!-- RIGHT: PLAYER -->
     <section class="panel panel--player">
 
       <div class="nowplaying">
         <div class="np__art" id="npArt"><i class="fa-solid fa-music"></i></div>
         <div class="np__meta">
           <div class="np__name" id="npName">Nothing playing</div>
-          <div class="np__sub" id="npSub">Pick a station, upload audio, or load 48kHz Synth Reference</div>
+          <div class="np__sub" id="npSub">Pick a station, load a track, or launch 48kHz Synth</div>
         </div>
-        <canvas id="visualizer" class="np__viz" width="230" height="52"></canvas>
+        <canvas id="visualizer" class="np__viz" width="220" height="52"></canvas>
       </div>
 
-      <!-- Quick Audio Sources Toolbar (AtmosForge Synth Reference + Live Mic + Local Preview) -->
-      <div class="source-toolbar">
-        <button id="loadSynthBtn" class="btn" title="Synthesize 48kHz stereo spatial reference track">
+      <!-- Quick Audio Sources (Synth Reference & Live Mic Monitor from AtmosForge) -->
+      <div class="source-bar">
+        <button id="loadSynthBtn" class="btn">
           <i class="fa-solid fa-wave-square"></i> 48kHz Synth Reference
         </button>
-        <button id="micBtn" class="btn" title="Monitor live microphone through DSP chain">
+        <button id="micBtn" class="btn">
           <i class="fa-solid fa-microphone"></i> Live Mic Monitor
-        </button>
-        <button id="playLocalFileBtn" class="btn" title="Preview local audio file in player">
-          <i class="fa-solid fa-file-audio"></i> Play Local Audio
         </button>
       </div>
 
@@ -1183,7 +1159,7 @@ a { color: var(--p); }
       <!-- Enhancer -->
       <div class="enhancer">
         <div class="enhancer__head">
-          <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AtmosForge Real-Time Enhancer</h3>
+          <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Real-Time Enhancer</h3>
           <button id="toggleEnhance" class="btn btn--primary">
             <i class="fa-solid fa-power-off"></i> <span>Enable Enhancer</span>
           </button>
@@ -1192,42 +1168,42 @@ a { color: var(--p); }
         <div class="presets" id="presetRow">
           <button class="preset" data-preset="flat">Flat</button>
           <button class="preset is-active" data-preset="music">Music</button>
-          <button class="preset" data-preset="atmos">Atmos Spatial</button>
-          <button class="preset" data-preset="voice">Vocal Clarity</button>
+          <button class="preset" data-preset="voice">Voice</button>
           <button class="preset" data-preset="podcast">Podcast</button>
-          <button class="preset" data-preset="bass">Sub-Bass Warmth</button>
-          <button class="preset" data-preset="studio">Studio Reference</button>
+          <button class="preset" data-preset="bass">Bass</button>
           <button class="preset" data-preset="night">Night</button>
+          <button class="preset" data-preset="atmos">Atmos Spatial</button>
+          <button class="preset" data-preset="studio">Studio</button>
         </div>
 
         <div class="sliders">
           <label class="slider">
-            <span><i class="fa-solid fa-drum"></i> Bass (150Hz) <b id="vBass">6.0</b> dB</span>
-            <input id="sBass" type="range" min="-12" max="15" step="0.5" value="6">
+            <span><i class="fa-solid fa-drum"></i> Bass (150Hz) <b id="vBass">0</b> dB</span>
+            <input id="sBass" type="range" min="-12" max="15" step="0.5" value="0">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-microphone-lines"></i> Presence (3kHz) <b id="vPresence">3.0</b> dB</span>
-            <input id="sPresence" type="range" min="-12" max="12" step="0.5" value="3">
+            <span><i class="fa-solid fa-microphone-lines"></i> Presence (3kHz) <b id="vPresence">0</b> dB</span>
+            <input id="sPresence" type="range" min="-12" max="12" step="0.5" value="0">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-star"></i> Treble (3.5kHz) <b id="vTreble">4.0</b> dB</span>
-            <input id="sTreble" type="range" min="-12" max="15" step="0.5" value="4">
+            <span><i class="fa-solid fa-star"></i> Treble (3.5kHz) <b id="vTreble">0</b> dB</span>
+            <input id="sTreble" type="range" min="-12" max="15" step="0.5" value="0">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-maximize"></i> Spatial Width (Haas) <b id="vWidth">35</b>%</span>
+            <span><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Spatial Width <b id="vWidth">35</b>%</span>
             <input id="sWidth" type="range" min="0" max="1" step="0.05" value="0.35">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-compress"></i> Comp Threshold <b id="vThreshold">-24</b> dB</span>
-            <input id="sThreshold" type="range" min="-50" max="0" step="1" value="-24">
+            <span><i class="fa-solid fa-compress"></i> Comp Ratio <b id="vComp">0</b>:1</span>
+            <input id="sComp" type="range" min="0" max="20" step="1" value="0">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-gauge-high"></i> Comp Ratio <b id="vComp">12</b>:1</span>
-            <input id="sComp" type="range" min="1" max="20" step="1" value="12">
+            <span><i class="fa-solid fa-gauge-high"></i> Comp Thresh <b id="vThresh">-24</b> dB</span>
+            <input id="sThresh" type="range" min="-50" max="0" step="1" value="-24">
           </label>
           <label class="slider">
-            <span><i class="fa-solid fa-volume-high"></i> Make-up Gain <b id="vMakeup">1.05</b>×</span>
-            <input id="sMakeup" type="range" min="0.5" max="2" step="0.01" value="1.05">
+            <span><i class="fa-solid fa-volume-high"></i> Make-up <b id="vMakeup">1.00</b>×</span>
+            <input id="sMakeup" type="range" min="0.5" max="2" step="0.01" value="1">
           </label>
         </div>
 
@@ -1237,7 +1213,7 @@ a { color: var(--p); }
             <span class="switch__track"><span class="switch__thumb"></span></span>
             <span class="switch__label">
               <i class="fa-solid fa-headphones"></i> Dolby Atmos Spatial DSP
-              <small>(12ms psychoacoustic Haas cross-feed &amp; height stage)</small>
+              <small>(binaural Haas cross-feed &amp; height stage)</small>
             </span>
           </label>
 
@@ -1246,48 +1222,51 @@ a { color: var(--p); }
             <span class="switch__track"><span class="switch__thumb"></span></span>
             <span class="switch__label">
               <i class="fa-solid fa-brain"></i> Adaptive Spectral Balancing
-              <small>(model-free real-time spectral tilt compensation)</small>
+              <small>(model-free, runs locally)</small>
             </span>
           </label>
         </div>
       </div>
 
-      <!-- Offline Mastering & Audio Format Converter -->
+      <!-- Converter & AtmosForge Mastering -->
       <div class="converter">
         <div class="converter__head">
-          <h3><i class="fa-solid fa-file-audio"></i> Offline Mastering &amp; Format Converter</h3>
-          <span class="hint">48kHz OfflineAudioContext · 100% Client-Side</span>
+          <h3><i class="fa-solid fa-file-audio"></i> Local Track Converter &amp; Masterer</h3>
+          <span class="hint">100% client-side offline DSP</span>
         </div>
 
         <div class="converter__row">
           <input id="fileInput" type="file" accept="audio/*" hidden>
           <button id="pickFile" class="btn"><i class="fa-solid fa-folder-open"></i> Choose audio file</button>
           <select id="formatSelect" class="select">
-            <option value="wav16">16-Bit PCM WAV (48 kHz)</option>
-            <option value="wav24">24-Bit Hi-Res WAV (48 kHz)</option>
-            <option value="mp3">MP3 320 kbps (LAME)</option>
-            <option value="opus">WebM / Opus (256 kbps)</option>
+            <option value="wav16">WAV 16-bit / 48 kHz</option>
+            <option value="wav24">WAV 24-bit Hi-Res / 48 kHz</option>
+            <option value="mp3">MP3 320 kbps</option>
+            <option value="opus">WebM / Opus 256 kbps</option>
           </select>
           <button id="convertBtn" class="btn btn--primary" disabled>
-            <i class="fa-solid fa-bolt"></i> Master &amp; Convert
+            <i class="fa-solid fa-bolt"></i> Render &amp; Download Master
           </button>
         </div>
 
         <div class="converter__opts">
           <label>
             <input id="normalizeCheck" type="checkbox" checked>
-            <span>-1.0 dBFS Peak Normalization</span>
+            -1.0 dBFS Peak Normalize
           </label>
-          <span id="activeMasterSource" class="hint">Source: None (upload a file or generate 48kHz Synth Reference)</span>
+          <span class="hint">Supports uploaded files or active 48kHz Synth buffer</span>
         </div>
 
         <div class="converter__status" id="convertStatus"></div>
+
+        <!-- MediaCapabilities Hardware Codec Diagnostic Grid -->
+        <div class="codec-grid" id="codecBadges"></div>
       </div>
 
       <!-- AI Acoustic Tuner -->
       <div class="ai-tuner">
         <div class="ai-tuner__head">
-          <h3><i class="fa-solid fa-robot"></i> AI Acoustic Tuner</h3>
+          <h3><i class="fa-solid fa-robot"></i>AI Acoustic Tuner</h3>
           <span class="hint">No API key required</span>
         </div>
         <p class="ai-tuner__desc">
@@ -1312,7 +1291,7 @@ a { color: var(--p); }
 'use strict';
 
 /* ==========================================================================
-   1. 33-PALETTE THEME SYSTEM
+   THEME SYSTEM (33 THEMES + CUSTOM COLOR PICKER)
    ========================================================================== */
 const THEME_DEFS = {
   corporate:   { p:'#4b6bfb', s:'#7b92b2', a:'#67cba0', n:'#181a2a', b1:'#ffffff', b2:'#f2f2f2', b3:'#e6e6e6', bc:'#181a2a' },
@@ -1367,11 +1346,15 @@ function contentOn(hex) {
   const rules = [];
   for (const name of THEME_NAMES) {
     const t = THEME_DEFS[name];
+    const pc = contentOn(t.p);
+    const sc = contentOn(t.s);
+    const ac = contentOn(t.a);
+    const nc = contentOn(t.n);
     rules.push(`[data-theme="${name}"]{
-      --p:${t.p}; --pc:${contentOn(t.p)};
-      --s:${t.s}; --sc:${contentOn(t.s)};
-      --a:${t.a}; --ac:${contentOn(t.a)};
-      --n:${t.n}; --nc:${contentOn(t.n)};
+      --p:${t.p}; --pc:${pc};
+      --s:${t.s}; --sc:${sc};
+      --a:${t.a}; --ac:${ac};
+      --n:${t.n}; --nc:${nc};
       --b1:${t.b1}; --b2:${t.b2}; --b3:${t.b3}; --bc:${t.bc};
     }`);
   }
@@ -1491,39 +1474,24 @@ function loadTheme() {
 
   if (savedCustom) {
     try {
-      applyCustomColors(JSON.parse(savedCustom));
+      const colors = JSON.parse(savedCustom);
+      applyCustomColors(colors);
     } catch (_) {}
   }
 
   buildThemeGallery();
 }
 
-/* ==========================================================================
-   THEME & CODEC MODAL UI WIRING
-   ========================================================================== */
 function openThemePanel() { document.getElementById('themePanel').classList.add('open'); }
 function closeThemePanel() { document.getElementById('themePanel').classList.remove('open'); }
-function openCodecPanel() { document.getElementById('codecPanel').classList.add('open'); }
-function closeCodecPanel() { document.getElementById('codecPanel').classList.remove('open'); }
 
 document.getElementById('themeBtn').addEventListener('click', openThemePanel);
 document.getElementById('closeThemePanel').addEventListener('click', closeThemePanel);
 document.getElementById('themePanel').addEventListener('click', (e) => {
   if (e.target.id === 'themePanel') closeThemePanel();
 });
-
-document.getElementById('codecBtn').addEventListener('click', openCodecPanel);
-document.getElementById('atmosBadge').addEventListener('click', openCodecPanel);
-document.getElementById('closeCodecPanel').addEventListener('click', closeCodecPanel);
-document.getElementById('codecPanel').addEventListener('click', (e) => {
-  if (e.target.id === 'codecPanel') closeCodecPanel();
-});
-
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeThemePanel();
-    closeCodecPanel();
-  }
+  if (e.key === 'Escape') closeThemePanel();
 });
 
 document.getElementById('applyCustom').addEventListener('click', () => {
@@ -1555,17 +1523,17 @@ document.getElementById('resetTheme').addEventListener('click', () => {
 });
 
 /* ==========================================================================
-   2. ATMOSFORGE AUDIO ENGINE (DSP CHAIN, MIC, 48KHZ SYNTH, CONVERTER)
+   AUDIO ENHANCER + ATMOSFORGE DSP MASTERING ENGINE
    ========================================================================== */
 const PRESETS = {
-  flat:    { bass: 0,    mud: 0,  presence: 0,   treble: 0,   comp: false, makeup: 1.00, threshold: -24, ratio: 1,  knee: 30, atmos: 0.00 },
-  music:   { bass: 6,    mud: -2, presence: 3,   treble: 4,   comp: true,  makeup: 1.05, threshold: -24, ratio: 12, knee: 30, atmos: 0.35 },
-  atmos:   { bass: 6,    mud: -2, presence: 3.5, treble: 4.5, comp: true,  makeup: 1.08, threshold: -24, ratio: 12, knee: 30, atmos: 0.55 },
-  voice:   { bass: -2,   mud: -4, presence: 5.5, treble: 6.5, comp: true,  makeup: 1.15, threshold: -28, ratio: 14, knee: 20, atmos: 0.15 },
-  podcast: { bass: -1,   mud: -3, presence: 4,   treble: 2.5, comp: true,  makeup: 1.20, threshold: -30, ratio: 6,  knee: 15, atmos: 0.15 },
-  bass:    { bass: 10,   mud: -3, presence: 2,   treble: 2.5, comp: true,  makeup: 0.98, threshold: -20, ratio: 10, knee: 30, atmos: 0.40 },
-  studio:  { bass: 1.5,  mud: -1, presence: 1.5, treble: 2.0, comp: true,  makeup: 1.02, threshold: -18, ratio: 6,  knee: 24, atmos: 0.20 },
-  night:   { bass: 2,    mud: -1, presence: 1,   treble: 1,   comp: true,  makeup: 1.60, threshold: -40, ratio: 20, knee: 10, atmos: 0.25 }
+  flat:    { bass: 0,  mud: 0,  presence: 0, treble: 0,   comp: false, makeup: 1.00, threshold: -24, ratio: 1,  knee: 30, atmos: 0.00 },
+  music:   { bass: 6,  mud: -2, presence: 3, treble: 4,   comp: true,  makeup: 1.05, threshold: -24, ratio: 12, knee: 30, atmos: 0.35 },
+  voice:   { bass: -2, mud: -4, presence: 5, treble: 2,   comp: true,  makeup: 1.15, threshold: -28, ratio: 6,  knee: 20, atmos: 0.18 },
+  podcast: { bass: -1, mud: -3, presence: 4, treble: 1,   comp: true,  makeup: 1.20, threshold: -30, ratio: 4,  knee: 15, atmos: 0.15 },
+  bass:    { bass: 9,  mud: -3, presence: 2, treble: 3,   comp: true,  makeup: 0.95, threshold: -24, ratio: 12, knee: 30, atmos: 0.42 },
+  night:   { bass: 2,  mud: -1, presence: 1, treble: 1,   comp: true,  makeup: 1.60, threshold: -40, ratio: 20, knee: 10, atmos: 0.25 },
+  atmos:   { bass: 6,  mud: -2, presence: 3, treble: 4.5, comp: true,  makeup: 1.08, threshold: -24, ratio: 12, knee: 30, atmos: 0.55 },
+  studio:  { bass: 1.5,mud: -1, presence: 1.5,treble: 2.0,comp: true,  makeup: 1.02, threshold: -18, ratio: 6,  knee: 25, atmos: 0.20 }
 };
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -1596,7 +1564,7 @@ function createEnhanceGraph(ctx, settings) {
   n.treble.type = 'highshelf';
   n.treble.frequency.value = 3500;
 
-  // Psychoacoustic 12ms Haas Spatial Cross-Feed Stage
+  // Dolby Atmos Binaural Spatial Cross-Feed & 12ms Psychoacoustic Haas Stage
   n.spatialDry = ctx.createGain();
   n.spatialDry.gain.value = 1.0;
 
@@ -1609,20 +1577,18 @@ function createEnhanceGraph(ctx, settings) {
   n.spatialDelayL = ctx.createDelay(0.05);
   n.spatialDelayL.delayTime.value = 0.000;
   n.spatialDelayR = ctx.createDelay(0.05);
-  n.spatialDelayR.delayTime.value = 0.012; // 12ms psychoacoustic Haas offset
+  n.spatialDelayR.delayTime.value = 0.012;
 
   n.spatialWidthBus = ctx.createGain();
   n.spatialWidthBus.gain.value = 1.0;
 
-  // Dynamic Range Compressor
   n.comp = ctx.createDynamicsCompressor();
   n.comp.knee.value = 30;
   n.comp.attack.value = 0.003;
   n.comp.release.value = 0.25;
 
-  // Brickwall Safety Limiter
   n.limiter = ctx.createDynamicsCompressor();
-  n.limiter.threshold.value = -1.5;
+  n.limiter.threshold.value = -2;
   n.limiter.knee.value = 0;
   n.limiter.ratio.value = 20;
   n.limiter.attack.value = 0.002;
@@ -1635,12 +1601,12 @@ function createEnhanceGraph(ctx, settings) {
   n.analyser.fftSize = 2048;
   n.analyser.smoothingTimeConstant = 0.82;
 
-  // Routing: Highpass -> Bass -> Mud -> Presence -> Treble -> [Dry + Haas Spatial] -> Comp -> Limiter -> Makeup -> Analyser
   n.highpass.connect(n.bass);
   n.bass.connect(n.mud);
   n.mud.connect(n.presence);
   n.presence.connect(n.treble);
 
+  // Dry & Atmos Spatial path
   n.treble.connect(n.spatialDry);
   n.spatialDry.connect(n.spatialWidthBus);
 
@@ -1674,7 +1640,7 @@ function applySettingsToNodes(n, ctx, s, ramp) {
   n.spatialWet.gain.setTargetAtTime(atmosAmt * 0.45, t, tc);
   n.spatialDry.gain.setTargetAtTime(1.0 - atmosAmt * 0.08, t, tc);
 
-  if (s.comp && (s.ratio ?? 12) > 1) {
+  if (s.comp) {
     n.comp.threshold.setTargetAtTime(s.threshold ?? -24, t, tc);
     n.comp.ratio.setTargetAtTime(s.ratio ?? 12, t, tc);
     n.comp.knee.setTargetAtTime(s.knee ?? 30, t, tc);
@@ -1685,10 +1651,13 @@ function applySettingsToNodes(n, ctx, s, ramp) {
   }
 }
 
-class AtmosForgeEnhancer {
+class AudioEnhancer {
   constructor() {
     this.ctx = null;
     this.source = null;
+    this.micStream = null;
+    this.micSource = null;
+    this.isMicActive = false;
     this.bound = false;
     this.enabled = false;
     this.preset = 'music';
@@ -1703,16 +1672,6 @@ class AtmosForgeEnhancer {
     this._timeBuf = null;
     this._freqFloatBuf = null;
     this._freqByteBuf = null;
-    this._timeByteBuf = null;
-
-    // Live Mic Monitoring state
-    this.micStream = null;
-    this.micSource = null;
-    this.isMicActive = false;
-
-    // Decoded AudioBuffer for Offline Mastering
-    this.currentBuffer = null;
-    this.currentFileName = 'mastered-track';
   }
 
   _effectiveSettings(on) {
@@ -1727,7 +1686,7 @@ class AtmosForgeEnhancer {
   async ensureContext() {
     if (!this.ctx) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new Ctx({ latencyHint: 'interactive', sampleRate: 48000 });
+      this.ctx = new Ctx({ latencyHint: 'interactive' });
       const { nodes } = createEnhanceGraph(this.ctx, this._effectiveSettings(this.enabled));
       this.nodes = nodes;
       this.nodes.analyser.connect(this.ctx.destination);
@@ -1754,40 +1713,6 @@ class AtmosForgeEnhancer {
     }
     this.bound = false;
   }
-
-  async setEnabled(on, mediaElement) {
-    this.enabled = !!on;
-    await this.ensureContext();
-    if (on && mediaElement && !this.bound) await this.bind(mediaElement);
-    applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(this.enabled), 0.04);
-    if (!on) { this._adaptBass = 0; this._adaptTreble = 0; }
-    return this.enabled;
-  }
-
-  setAtmosEnabled(on) {
-    this._atmosEnabled = !!on;
-    if (this.enabled && this.nodes && this.ctx) {
-      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.04);
-    }
-  }
-
-  setPreset(name) {
-    if (!PRESETS[name]) return;
-    this.preset = name;
-    this._userOverrides = {};
-    if (this.enabled && this.nodes && this.ctx) {
-      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.04);
-    }
-  }
-
-  setOverrides(partial) {
-    this._userOverrides = Object.assign({}, this._userOverrides, partial);
-    if (this.enabled && this.nodes && this.ctx) {
-      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.03);
-    }
-  }
-
-  getOverrides() { return this._userOverrides; }
 
   async toggleMicrophone() {
     await this.ensureContext();
@@ -1817,56 +1742,38 @@ class AtmosForgeEnhancer {
     return true;
   }
 
-  /**
-   * Built-In 48kHz Stereo Reference Track Synthesizer (Zero external assets)
-   */
-  async generateReferenceTrack(durationSec = 8) {
-    const sampleRate = 48000;
-    const length = sampleRate * durationSec;
-    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-    const offline = new OfflineCtx(2, length, sampleRate);
-
-    const chords = [
-      [130.81, 196.00, 246.94, 293.66, 329.63], // Cmaj9
-      [110.00, 164.81, 196.00, 246.94, 261.63], // Am9
-      [87.31,  130.81, 174.61, 220.00, 261.63], // Fmaj7
-      [98.00,  146.83, 196.00, 246.94, 293.66]  // G6
-    ];
-
-    chords.forEach((chord, idx) => {
-      const startTime = idx * 2;
-      const endTime = startTime + 1.95;
-
-      chord.forEach((freq, voiceIdx) => {
-        const osc = offline.createOscillator();
-        const panner = offline.createStereoPanner();
-        const env = offline.createGain();
-
-        osc.type = voiceIdx === 0 ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(freq, startTime);
-
-        panner.pan.setValueAtTime(((voiceIdx / (chord.length - 1)) * 1.6) - 0.8, startTime);
-
-        env.gain.setValueAtTime(0.0001, startTime);
-        env.gain.exponentialRampToValueAtTime(voiceIdx === 0 ? 0.22 : 0.09, startTime + 0.15);
-        env.gain.exponentialRampToValueAtTime(0.0001, endTime);
-
-        osc.connect(panner).connect(env).connect(offline.destination);
-        osc.start(startTime);
-        osc.stop(endTime);
-      });
-    });
-
-    const renderedBuffer = await offline.startRendering();
-    this.currentBuffer = renderedBuffer;
-    this.currentFileName = 'atmosforge-48khz-reference';
-    const wavBlob = encodeWav(renderedBuffer, 16);
-    return {
-      url: URL.createObjectURL(wavBlob),
-      buffer: renderedBuffer,
-      name: 'AtmosForge 48kHz Spatial Reference'
-    };
+  async setEnabled(on, mediaElement) {
+    this.enabled = !!on;
+    await this.ensureContext();
+    if (on && mediaElement && !this.bound) await this.bind(mediaElement);
+    applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(this.enabled), 0.06);
+    if (!on) { this._adaptBass = 0; this._adaptTreble = 0; }
+    return this.enabled;
   }
+
+  setAtmosEnabled(on) {
+    this._atmosEnabled = !!on;
+    if (this.enabled && this.nodes && this.ctx) {
+      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.06);
+    }
+  }
+
+  setPreset(name) {
+    if (!PRESETS[name]) return;
+    this.preset = name;
+    if (this.enabled && this.nodes && this.ctx) {
+      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.06);
+    }
+  }
+
+  setOverrides(partial) {
+    this._userOverrides = Object.assign({}, this._userOverrides, partial);
+    if (this.enabled && this.nodes && this.ctx) {
+      applySettingsToNodes(this.nodes, this.ctx, this._effectiveSettings(true), 0.04);
+    }
+  }
+
+  getOverrides() { return this._userOverrides; }
 
   getLevels() {
     if (!this.nodes || !this.nodes.analyser) return { rms: 0, peak: 0 };
@@ -1885,16 +1792,24 @@ class AtmosForgeEnhancer {
     return { rms: Math.sqrt(sum / this._timeBuf.length), peak };
   }
 
-  getSpectrumAndWaveform() {
+  getSpectrum() {
     if (!this.nodes || !this.nodes.analyser) return null;
     const a = this.nodes.analyser;
     if (!this._freqByteBuf || this._freqByteBuf.length !== a.frequencyBinCount) {
       this._freqByteBuf = new Uint8Array(a.frequencyBinCount);
-      this._timeByteBuf = new Uint8Array(a.frequencyBinCount);
     }
     a.getByteFrequencyData(this._freqByteBuf);
-    a.getByteTimeDomainData(this._timeByteBuf);
-    return { freq: this._freqByteBuf, time: this._timeByteBuf };
+    return this._freqByteBuf;
+  }
+
+  getWaveform() {
+    if (!this.nodes || !this.nodes.analyser) return null;
+    const a = this.nodes.analyser;
+    if (!this._waveByteBuf || this._waveByteBuf.length !== a.frequencyBinCount) {
+      this._waveByteBuf = new Uint8Array(a.frequencyBinCount);
+    }
+    a.getByteTimeDomainData(this._waveByteBuf);
+    return this._waveByteBuf;
   }
 
   _bandEnergy(loHz, hiHz) {
@@ -1951,8 +1866,10 @@ class AtmosForgeEnhancer {
     if (total < 1e-9) return;
     const lowRatio  = low  / total;
     const highRatio = high / total;
-    const bassAdj   = clamp((0.35 - lowRatio)  * 45, -4, 5);
-    const trebleAdj = clamp((0.15 - highRatio) * 45, -3, 5);
+    const targetLow  = 0.35;
+    const targetHigh = 0.15;
+    const bassAdj   = clamp((targetLow  - lowRatio)  * 45, -4, 5);
+    const trebleAdj = clamp((targetHigh - highRatio) * 45, -3, 5);
     this._adaptBass   = lerp(this._adaptBass,   bassAdj,   0.15);
     this._adaptTreble = lerp(this._adaptTreble, trebleAdj, 0.15);
     const base = Object.assign({}, PRESETS[this.preset], this._userOverrides);
@@ -1963,7 +1880,49 @@ class AtmosForgeEnhancer {
 }
 
 /* ==========================================================================
-   3. RADIO DIRECTORY (KEYLESS RADIO BROWSER + CORS FALLBACK)
+   48KHZ STEREO SPATIAL REFERENCE TRACK SYNTHESIZER (ATMOSFORGE)
+   ========================================================================== */
+function generateReferenceTrackBuffer(durationSec = 8) {
+  const sampleRate = 48000;
+  const length = sampleRate * durationSec;
+  const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const offline = new OfflineCtx(2, length, sampleRate);
+
+  const chords = [
+    [130.81, 196.00, 246.94, 293.66, 329.63], // Cmaj9
+    [110.00, 164.81, 196.00, 246.94, 261.63], // Am9
+    [87.31,  130.81, 174.61, 220.00, 261.63], // Fmaj7
+    [98.00,  146.83, 196.00, 246.94, 293.66]  // G6
+  ];
+
+  chords.forEach((chord, idx) => {
+    const startTime = idx * 2;
+    const endTime = startTime + 1.95;
+
+    chord.forEach((freq, voiceIdx) => {
+      const osc = offline.createOscillator();
+      const panner = offline.createStereoPanner();
+      const env = offline.createGain();
+
+      osc.type = voiceIdx === 0 ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+      panner.pan.setValueAtTime(((voiceIdx / (chord.length - 1)) * 1.6) - 0.8, startTime);
+
+      env.gain.setValueAtTime(0.0001, startTime);
+      env.gain.exponentialRampToValueAtTime(voiceIdx === 0 ? 0.22 : 0.09, startTime + 0.15);
+      env.gain.exponentialRampToValueAtTime(0.0001, endTime);
+
+      osc.connect(panner).connect(env).connect(offline.destination);
+      osc.start(startTime);
+      osc.stop(endTime);
+    });
+  });
+
+  return offline.startRendering();
+}
+
+/* ==========================================================================
+   RADIO BROWSER (KEYLESS MIRRORS + CORS-SAFE FALLBACK)
    ========================================================================== */
 const MIRRORS = [
   'https://de1.api.radio-browser.info',
@@ -2040,12 +1999,12 @@ async function topStations(limit) {
 }
 
 /* ==========================================================================
-   4. OFFLINE MASTERING & CONVERTER (16-BIT WAV, 24-BIT WAV, MP3 320, OPUS)
+   OFFLINE MASTERING & CLIENT-SIDE CONVERTER (16-BIT WAV, 24-BIT WAV, MP3, OPUS)
    ========================================================================== */
 async function decodeFile(file) {
   const arrayBuffer = await file.arrayBuffer();
   const Ctx = window.AudioContext || window.webkitAudioContext;
-  const tmp = new Ctx({ sampleRate: 48000 });
+  const tmp = new Ctx();
   try {
     return await new Promise((resolve, reject) => {
       const p = tmp.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
@@ -2077,10 +2036,10 @@ function normalizeBuffer(buffer, targetPeak = 0.89125) {
 }
 
 async function renderEnhanced(audioBuffer, settings, normalize = true) {
-  const sampleRate = 48000;
+  const targetSampleRate = 48000;
   const channels = Math.min(audioBuffer.numberOfChannels, 2);
-  const length = Math.ceil(audioBuffer.duration * sampleRate);
-  const offline = new OfflineAudioContext(channels, length, sampleRate);
+  const length = Math.ceil(audioBuffer.duration * targetSampleRate);
+  const offline = new OfflineAudioContext(channels, length, targetSampleRate);
   const src = offline.createBufferSource();
   src.buffer = audioBuffer;
   const graph = createEnhanceGraph(offline, settings || PRESETS.music);
@@ -2088,17 +2047,15 @@ async function renderEnhanced(audioBuffer, settings, normalize = true) {
   graph.output.connect(offline.destination);
   src.start(0);
   const rendered = await offline.startRendering();
-  if (normalize) {
-    normalizeBuffer(rendered, 0.89125); // -1.0 dBFS peak normalization
-  }
+  if (normalize) normalizeBuffer(rendered, 0.89125);
   return rendered;
 }
 
 function encodeWav(audioBuffer, bitDepth = 16) {
   const numCh = audioBuffer.numberOfChannels;
   const sampleRate = audioBuffer.sampleRate;
-  const bytesPerSample = bitDepth / 8;
   const numFrames = audioBuffer.length;
+  const bytesPerSample = bitDepth / 8;
   const blockAlign = numCh * bytesPerSample;
   const dataSize = numFrames * blockAlign;
   const bufferSize = 44 + dataSize;
@@ -2112,7 +2069,7 @@ function encodeWav(audioBuffer, bitDepth = 16) {
   writeStr(8, 'WAVE');
   writeStr(12, 'fmt ');
   view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true); // Linear PCM
+  view.setUint16(20, 1, true);
   view.setUint16(22, numCh, true);
   view.setUint32(24, sampleRate, true);
   view.setUint32(28, sampleRate * blockAlign, true);
@@ -2126,16 +2083,17 @@ function encodeWav(audioBuffer, bitDepth = 16) {
   let offset = 44;
   for (let i = 0; i < numFrames; i++) {
     for (let c = 0; c < numCh; c++) {
-      const s = Math.max(-1, Math.min(1, chans[c][i]));
+      let s = Math.max(-1, Math.min(1, chans[c][i]));
       if (bitDepth === 24) {
-        const scaled = s < 0 ? s * 0x800000 : s * 0x7FFFFF;
-        const intSample = Math.round(scaled);
+        s = s < 0 ? s * 0x800000 : s * 0x7FFFFF;
+        const intSample = Math.round(s);
         view.setUint8(offset, intSample & 0xFF);
         view.setUint8(offset + 1, (intSample >> 8) & 0xFF);
         view.setUint8(offset + 2, (intSample >> 16) & 0xFF);
         offset += 3;
       } else {
-        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        view.setInt16(offset, s, true);
         offset += 2;
       }
     }
@@ -2191,6 +2149,10 @@ async function encodeMp3(audioBuffer, kbps) {
 
 function encodeWebMOpus(audioBuffer) {
   return new Promise((resolve, reject) => {
+    if (typeof MediaRecorder === 'undefined') {
+      reject(new Error('MediaRecorder WebM/Opus not supported in this browser.'));
+      return;
+    }
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const ctx = new AudioCtx({ sampleRate: audioBuffer.sampleRate });
     const dest = ctx.createMediaStreamDestination();
@@ -2198,22 +2160,20 @@ function encodeWebMOpus(audioBuffer) {
     src.buffer = audioBuffer;
     src.connect(dest);
 
-    const mimeType = (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus'
       : 'audio/webm';
 
     const recorder = new MediaRecorder(dest.stream, { mimeType, audioBitsPerSecond: 256000 });
     const chunks = [];
 
-    recorder.ondataavailable = e => {
-      if (e.data.size > 0) chunks.push(e.data);
-    };
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onstop = () => {
-      ctx.close();
+      ctx.close().catch(() => {});
       resolve(new Blob(chunks, { type: mimeType }));
     };
     recorder.onerror = err => {
-      ctx.close();
+      ctx.close().catch(() => {});
       reject(err);
     };
 
@@ -2225,24 +2185,23 @@ function encodeWebMOpus(audioBuffer) {
   });
 }
 
-async function enhanceAndConvertFromBuffer(audioBuffer, baseName, format, settings, normalize) {
-  const rendered = await renderEnhanced(audioBuffer, settings, normalize);
+async function enhanceAndConvertBuffer(decodedBuffer, baseName, format, settings, normalize) {
+  const rendered = await renderEnhanced(decodedBuffer, settings, normalize);
   let blob, ext;
   if (format === 'mp3') {
     blob = await encodeMp3(rendered, 320);
     ext = 'mp3';
+  } else if (format === 'wav24') {
+    blob = encodeWav(rendered, 24);
+    ext = '24bit.wav';
   } else if (format === 'opus') {
     blob = await encodeWebMOpus(rendered);
     ext = 'webm';
-  } else if (format === 'wav24') {
-    blob = encodeWav(rendered, 24);
-    ext = 'wav';
   } else {
     blob = encodeWav(rendered, 16);
     ext = 'wav';
   }
-  const suffix = format === 'wav24' ? '_mastered_24bit.' : '_mastered.';
-  return { blob: blob, filename: baseName + suffix + ext };
+  return { blob: blob, filename: baseName + '_enhanced.' + ext };
 }
 
 function downloadBlob(blob, filename) {
@@ -2257,17 +2216,17 @@ function downloadBlob(blob, filename) {
 }
 
 /* ==========================================================================
-   5. ATMOSFORGE MEDIACAPABILITIES & DOLBY ATMOS CODEC INSPECTOR
+   DOLBY ATMOS & SPATIAL CODEC INSPECTOR (MEDIACAPABILITIES API)
    ========================================================================== */
 async function checkDolbyAtmosSupport() {
   const result = {
-    mediaCapabilities: false,
-    ddPlusAtmos: { supported: false, smooth: false, powerEfficient: false },
-    ac4Atmos: { supported: false, smooth: false, powerEfficient: false },
-    opus: { supported: false, smooth: false, powerEfficient: false },
-    flac: { supported: false, smooth: false, powerEfficient: false },
-    aac: { supported: false, smooth: false, powerEfficient: false },
-    spatialRendering: false
+    ddPlusAtmos: false,
+    ac4Atmos: false,
+    opus: false,
+    flac: false,
+    aac: false,
+    spatialRendering: false,
+    mediaCapabilities: false
   };
   if (!('mediaCapabilities' in navigator) || typeof navigator.mediaCapabilities.decodingInfo !== 'function') {
     return result;
@@ -2279,16 +2238,11 @@ async function checkDolbyAtmosSupport() {
       try {
         const res = await navigator.mediaCapabilities.decodingInfo(cfg);
         if (res && res.supported) {
-          return {
-            supported: true,
-            smooth: Boolean(res.smooth),
-            powerEfficient: Boolean(res.powerEfficient),
-            spatial: Boolean(res.spatialRendering)
-          };
+          return { supported: true, spatial: Boolean(res.spatialRendering) };
         }
       } catch (_) {}
     }
-    return { supported: false, smooth: false, powerEfficient: false, spatial: false };
+    return { supported: false, spatial: false };
   };
 
   const [ddPlus, ac4, opus, flac, aac] = await Promise.all([
@@ -2313,17 +2267,17 @@ async function checkDolbyAtmosSupport() {
     ])
   ]);
 
-  result.ddPlusAtmos = ddPlus;
-  result.ac4Atmos = ac4;
-  result.opus = opus;
-  result.flac = flac;
-  result.aac = aac;
+  result.ddPlusAtmos = ddPlus.supported;
+  result.ac4Atmos = ac4.supported;
+  result.opus = opus.supported;
+  result.flac = flac.supported;
+  result.aac = aac.supported;
   result.spatialRendering = ddPlus.spatial || ac4.spatial;
   return result;
 }
 
 function describeAtmos(s) {
-  const nativeCodecs = [s.ddPlusAtmos.supported && 'E-AC-3 JOC', s.ac4Atmos.supported && 'AC-4'].filter(Boolean);
+  const nativeCodecs = [s.ddPlusAtmos && 'E-AC-3 JOC', s.ac4Atmos && 'AC-4'].filter(Boolean);
   if (nativeCodecs.length > 0) {
     return {
       text: 'Dolby Atmos decoder + stereo DSP (' + nativeCodecs.join(' + ') + ')',
@@ -2338,34 +2292,8 @@ function describeAtmos(s) {
   };
 }
 
-function renderCodecGrid(report) {
-  const grid = document.getElementById('codecGrid');
-  if (!grid) return;
-  const items = [
-    { label: 'Dolby Digital+ Atmos (E-AC-3)', info: report.ddPlusAtmos },
-    { label: 'Dolby AC-4 Immersive', info: report.ac4Atmos },
-    { label: 'Opus 48 kHz', info: report.opus },
-    { label: 'FLAC Lossless', info: report.flac },
-    { label: 'AAC-LC 320 kbps', info: report.aac },
-    { label: 'AtmosForge Haas Spatial DSP', info: { supported: true, smooth: true, powerEfficient: true } }
-  ];
-  grid.innerHTML = items.map(item => {
-    const ok = item.info && item.info.supported;
-    const meta = ok
-      ? [item.info.smooth && 'Smooth', item.info.powerEfficient && 'Power-Efficient'].filter(Boolean).join(' · ') || 'Hardware / WebAudio Ready'
-      : 'Not reported by browser';
-    return `<div class="codec-card ${ok ? 'is-supported' : ''}">
-      <div class="codec-card__title">${item.label}</div>
-      <div class="codec-card__status" style="color:${ok ? '#22c55e' : 'var(--tw-muted)'};">
-        ${ok ? 'SUPPORTED' : 'UNSUPPORTED'}
-      </div>
-      <div class="codec-card__meta">${meta}</div>
-    </div>`;
-  }).join('');
-}
-
 /* ==========================================================================
-   6. APP GLUE & UI CONTROLLER
+   APP GLUE & UI WIRING
    ========================================================================== */
 const $ = (id) => document.getElementById(id);
 
@@ -2384,25 +2312,21 @@ const els = {
   visualizer:   $('visualizer'),
   loadSynthBtn: $('loadSynthBtn'),
   micBtn:       $('micBtn'),
-  playLocalFileBtn: $('playLocalFileBtn'),
   toggleEnhance: $('toggleEnhance'),
   presetRow:     $('presetRow'),
-  sBass:      $('sBass'),      vBass:      $('vBass'),
-  sPresence:  $('sPresence'),  vPresence:  $('vPresence'),
-  sTreble:    $('sTreble'),    vTreble:    $('vTreble'),
-  sWidth:     $('sWidth'),     vWidth:     $('vWidth'),
-  sThreshold: $('sThreshold'), vThreshold: $('vThreshold'),
-  sComp:      $('sComp'),      vComp:      $('vComp'),
-  sMakeup:    $('sMakeup'),    vMakeup:    $('vMakeup'),
+  sBass:     $('sBass'), sPresence: $('sPresence'), sTreble: $('sTreble'), sWidth: $('sWidth'),
+  sComp:     $('sComp'), sThresh:   $('sThresh'),   sMakeup: $('sMakeup'),
+  vBass:     $('vBass'), vPresence: $('vPresence'), vTreble: $('vTreble'), vWidth: $('vWidth'),
+  vComp:     $('vComp'), vThresh:   $('vThresh'),   vMakeup: $('vMakeup'),
   atmosSpatialToggle: $('atmosSpatialToggle'),
-  adaptiveToggle:     $('adaptiveToggle'),
+  adaptiveToggle: $('adaptiveToggle'),
   fileInput:    $('fileInput'),
   pickFile:     $('pickFile'),
   formatSelect: $('formatSelect'),
   normalizeCheck: $('normalizeCheck'),
-  activeMasterSource: $('activeMasterSource'),
   convertBtn:   $('convertBtn'),
   convertStatus:$('convertStatus'),
+  codecBadges:  $('codecBadges'),
   aiTunerInput:     $('aiTunerInput'),
   aiTuneCurrentBtn: $('aiTuneCurrentBtn'),
   aiTunePromptBtn:  $('aiTunePromptBtn'),
@@ -2412,18 +2336,17 @@ const els = {
 
 const state = {
   audioEl: null,
-  enhancer: new AtmosForgeEnhancer(),
+  enhancer: new AudioEnhancer(),
   currentStation: null,
   currentIndex: -1,
   corsBlocked: false,
   stations: [],
   selectedFile: null,
-  selectedFileUrl: null,
+  masterBuffer: null,
+  masterFileName: 'mastered-track',
   activeTag: '',
   playing: false
 };
-
-window.atmosForge = state.enhancer;
 
 function toast(msg, kind, ms) {
   kind = kind || 'info';
@@ -2472,11 +2395,8 @@ function wireAudioEvents(el) {
   });
   el.addEventListener('playing', () => {
     if (state.currentStation) {
-      els.npSub.textContent = [
-        state.currentStation.country,
-        state.currentStation.codec,
-        state.currentStation.bitrate ? state.currentStation.bitrate + ' kbps' : ''
-      ].filter(Boolean).join(' · ');
+      els.npSub.textContent = [state.currentStation.country, state.currentStation.codec, state.currentStation.bitrate ? state.currentStation.bitrate + ' kbps' : '']
+        .filter(Boolean).join(' · ');
     }
   });
 }
@@ -2588,11 +2508,11 @@ async function handleCorsBlocked() {
   toast('This stream sends no CORS headers, so the enhancer was bypassed. Audio now plays raw. SomaFM / CORS-enabled stations can still be enhanced.', 'warn', 8000);
 }
 
-async function playAudioSource({ url, name, sub, favicon = '', isRadio = false, station = null, idx = -1, li = null }) {
+async function playStation(station, idx, li) {
   teardownAudio();
   state.corsBlocked = false;
-  state.currentStation = isRadio ? station : null;
-  state.currentIndex = isRadio ? idx : -1;
+  state.currentStation = station;
+  state.currentIndex = typeof idx === 'number' ? idx : state.stations.indexOf(station);
   silentTicks = 0;
   updateCorsBadge();
 
@@ -2601,18 +2521,18 @@ async function playAudioSource({ url, name, sub, favicon = '', isRadio = false, 
   els.audioHost.appendChild(el);
   state.audioEl = el;
 
-  els.npName.textContent = name;
-  els.npSub.textContent = sub || 'Connecting…';
-  if (favicon) {
-    els.npArt.innerHTML = '<img src="' + favicon + '" alt="" onerror="this.remove()">';
+  els.npName.textContent = station.name;
+  els.npSub.textContent = 'Connecting…';
+  if (station.favicon) {
+    els.npArt.innerHTML = '<img src="' + station.favicon + '" alt="" onerror="this.remove()">';
   } else {
-    els.npArt.innerHTML = isRadio ? '<i class="fa-solid fa-music"></i>' : '<i class="fa-solid fa-sliders"></i>';
+    els.npArt.innerHTML = '<i class="fa-solid fa-music"></i>';
   }
   markActiveStation(li || null);
 
-  el.src = url;
+  el.src = station.url;
 
-  try { await el.play(); } catch (_) {
+  try { await el.play(); } catch (err) {
     toast('Autoplay blocked — press play on the player.', 'warn');
   }
 
@@ -2620,30 +2540,14 @@ async function playAudioSource({ url, name, sub, favicon = '', isRadio = false, 
     try {
       await state.enhancer.bind(el);
       await state.enhancer.setEnabled(true, el);
-      if (isRadio) startWatchdog();
+      startWatchdog();
     } catch (err) {
       console.warn('[enhancer] bind failed:', err);
     }
   }
 
   updateCtxBadge();
-  if (station) publishNowPlaying(station);
-  else {
-    try { document.title = '▶ ' + name + ' — HexAudio'; } catch (_) {}
-  }
-}
-
-async function playStation(station, idx, li) {
-  await playAudioSource({
-    url: station.url,
-    name: station.name,
-    sub: 'Connecting…',
-    favicon: station.favicon,
-    isRadio: true,
-    station,
-    idx: typeof idx === 'number' ? idx : state.stations.indexOf(station),
-    li
-  });
+  publishNowPlaying(station);
 }
 
 function togglePlay() {
@@ -2670,63 +2574,68 @@ function nextStation() {
   playStation(st, i, li);
 }
 
-/* ---------- 48kHz Synth Reference & Live Mic & Local Audio Preview ---------- */
+/* ---------- 48kHz Synth Reference & Live Mic Monitor (AtmosForge) ---------- */
 els.loadSynthBtn.addEventListener('click', async () => {
   els.loadSynthBtn.disabled = true;
-  els.loadSynthBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Synthesizing…';
+  els.npName.textContent = 'AtmosForge 48kHz Spatial Reference';
+  els.npSub.textContent = 'Synthesizing 48kHz stereo spatial reference track…';
   try {
-    const ref = await state.enhancer.generateReferenceTrack(8);
+    const buffer = await generateReferenceTrackBuffer(8);
+    state.masterBuffer = buffer;
+    state.masterFileName = 'atmosforge-48khz-reference';
     els.convertBtn.disabled = false;
-    els.activeMasterSource.textContent = 'Source: AtmosForge 48kHz Stereo Reference (8.0s)';
-    await playAudioSource({
-      url: ref.url,
-      name: ref.name,
-      sub: '48 kHz · 16-bit Stereo · Built-in Synth Reference',
-      isRadio: false
-    });
-    toast('Loaded 48kHz Stereo Spatial Reference Track.', 'ok');
+    els.convertStatus.textContent = 'Loaded 48kHz Stereo Reference Track into offline mastering engine.';
+
+    const wavBlob = encodeWav(buffer, 16);
+    const url = URL.createObjectURL(wavBlob);
+
+    teardownAudio();
+    state.corsBlocked = false;
+    state.currentStation = null;
+    markActiveStation(null);
+    updateCorsBadge();
+
+    const el = createAudioElement(true);
+    wireAudioEvents(el);
+    el.loop = true;
+    els.audioHost.appendChild(el);
+    state.audioEl = el;
+    els.npArt.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
+    els.npSub.textContent = '48 kHz · 24-bit DSP · Stereo Spatial Loop';
+    el.src = url;
+
+    await el.play();
+    await state.enhancer.bind(el);
+    await state.enhancer.setEnabled(true, el);
+    updateEnhancerUI();
+    updateCtxBadge();
+    toast('Playing 48kHz Spatial Reference Track with DSP Enhancer enabled.', 'ok');
   } catch (err) {
     toast('Failed to generate reference track: ' + err.message, 'err');
   } finally {
     els.loadSynthBtn.disabled = false;
-    els.loadSynthBtn.innerHTML = '<i class="fa-solid fa-wave-square"></i> 48kHz Synth Reference';
   }
 });
 
 els.micBtn.addEventListener('click', async () => {
   try {
     const active = await state.enhancer.toggleMicrophone();
-    if (active && !state.enhancer.enabled) {
+    if (active) {
       await state.enhancer.setEnabled(true, null);
       updateEnhancerUI();
+      els.micBtn.classList.add('btn--danger');
+      els.micBtn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> Stop Mic Monitor';
+      els.npName.textContent = 'Live Microphone Monitor';
+      els.npSub.textContent = 'Low-latency real-time DSP pass-through active';
+      toast('Live microphone routed through real-time DSP chain.', 'ok');
+    } else {
+      els.micBtn.classList.remove('btn--danger');
+      els.micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Live Mic Monitor';
+      toast('Live microphone stopped.', 'info');
     }
     updateCtxBadge();
-    els.micBtn.classList.toggle('btn--danger', active);
-    els.micBtn.innerHTML = active
-      ? '<i class="fa-solid fa-microphone-slash"></i> Stop Mic Monitor'
-      : '<i class="fa-solid fa-microphone"></i> Live Mic Monitor';
-    if (active) {
-      els.npName.textContent = 'Live Microphone Input';
-      els.npSub.textContent = '48 kHz Real-Time DSP Monitoring Active';
-      toast('Live microphone routed through AtmosForge DSP chain.', 'ok');
-    } else {
-      toast('Microphone monitoring stopped.', 'info');
-    }
   } catch (err) {
     toast('Microphone error: ' + err.message, 'err');
-  }
-});
-
-els.playLocalFileBtn.addEventListener('click', () => {
-  if (state.selectedFileUrl && state.selectedFile) {
-    playAudioSource({
-      url: state.selectedFileUrl,
-      name: state.selectedFile.name,
-      sub: 'Local File · ' + (state.enhancer.currentBuffer ? state.enhancer.currentBuffer.sampleRate + ' Hz' : 'Audio'),
-      isRadio: false
-    });
-  } else {
-    els.fileInput.click();
   }
 });
 
@@ -2766,7 +2675,7 @@ function updateEnhancerUI() {
 /* ---------- Enhancer toggle ---------- */
 els.toggleEnhance.addEventListener('click', async () => {
   if (!state.audioEl && !state.enhancer.isMicActive) {
-    toast('Pick a station, load the 48kHz Synth Reference, or start Live Mic first.', 'warn');
+    toast('Pick a station, load a track, or start Live Mic first.', 'warn');
     return;
   }
   if (state.corsBlocked) {
@@ -2777,7 +2686,7 @@ els.toggleEnhance.addEventListener('click', async () => {
     if (!state.enhancer.enabled) {
       if (state.audioEl) await state.enhancer.bind(state.audioEl);
       await state.enhancer.setEnabled(true, state.audioEl);
-      if (state.currentStation) startWatchdog();
+      if (state.audioEl) startWatchdog();
     } else {
       await state.enhancer.setEnabled(false, state.audioEl);
     }
@@ -2801,9 +2710,9 @@ els.presetRow.addEventListener('click', (e) => {
     els.sBass.value = p.bass;
     els.sPresence.value = p.presence;
     els.sTreble.value = p.treble;
-    els.sWidth.value = p.atmos;
-    els.sThreshold.value = p.threshold ?? -24;
-    els.sComp.value = p.comp ? (p.ratio || 12) : 1;
+    els.sWidth.value = p.atmos ?? 0.35;
+    els.sComp.value = p.comp ? (p.ratio || 12) : 0;
+    els.sThresh.value = p.threshold ?? -24;
     els.sMakeup.value = p.makeup;
     syncSliderLabels();
   }
@@ -2823,8 +2732,8 @@ function syncSliderLabels() {
   els.vPresence.textContent = (+els.sPresence.value).toFixed(1);
   els.vTreble.textContent = (+els.sTreble.value).toFixed(1);
   els.vWidth.textContent = Math.round((+els.sWidth.value) * 100);
-  els.vThreshold.textContent = (+els.sThreshold.value).toFixed(0);
   els.vComp.textContent = (+els.sComp.value).toFixed(0);
+  els.vThresh.textContent = (+els.sThresh.value).toFixed(0);
   els.vMakeup.textContent = (+els.sMakeup.value).toFixed(2);
 }
 
@@ -2835,14 +2744,14 @@ function pushSliderOverrides() {
     presence:  +els.sPresence.value,
     treble:    +els.sTreble.value,
     atmos:     +els.sWidth.value,
-    threshold: +els.sThreshold.value,
     comp:      compRatio > 1,
-    ratio:     compRatio,
+    ratio:     compRatio > 1 ? compRatio : 12,
+    threshold: +els.sThresh.value,
     makeup:    +els.sMakeup.value
   });
 }
 
-[els.sBass, els.sPresence, els.sTreble, els.sWidth, els.sThreshold, els.sComp, els.sMakeup].forEach(sl => {
+[els.sBass, els.sPresence, els.sTreble, els.sWidth, els.sComp, els.sThresh, els.sMakeup].forEach(sl => {
   sl.addEventListener('input', () => { syncSliderLabels(); pushSliderOverrides(); });
 });
 syncSliderLabels();
@@ -2866,24 +2775,24 @@ els.adaptiveToggle.addEventListener('change', () => {
 function heuristicCurveForPrompt(text) {
   const q = (text || '').toLowerCase();
   if (q.includes('podcast') || q.includes('voice') || q.includes('speech') || q.includes('news')) {
-    return { bass: -1.5, presence: 5, treble: 3.5, comp: 8, threshold: -28, makeup: 1.2, atmos: 0.15, summary: 'Speech clarity & vocal intelligibility curve.' };
+    return { bass: -1.5, presence: 5, treble: 2, comp: 6, thresh: -28, makeup: 1.2, atmos: 0.15, summary: 'Speech clarity & vocal intelligibility curve.' };
   }
   if (q.includes('bass') || q.includes('synth') || q.includes('edm') || q.includes('hiphop') || q.includes('club')) {
-    return { bass: 9.5, presence: 2.5, treble: 3.5, comp: 12, threshold: -22, makeup: 1.0, atmos: 0.50, summary: 'Deep low-end punch with Atmos spatial width.' };
+    return { bass: 8.5, presence: 2.5, treble: 3.5, comp: 12, thresh: -22, makeup: 1.0, atmos: 0.45, summary: 'Deep low-end punch with Atmos spatial width.' };
   }
   if (q.includes('night') || q.includes('late') || q.includes('quiet') || q.includes('sleep')) {
-    return { bass: 2.5, presence: 1.5, treble: 1, comp: 18, threshold: -38, makeup: 1.5, atmos: 0.25, summary: 'Nighttime leveling for even low-volume listening.' };
+    return { bass: 2.5, presence: 1.5, treble: 1, comp: 18, thresh: -38, makeup: 1.5, atmos: 0.25, summary: 'Nighttime leveling for even low-volume listening.' };
   }
   if (q.includes('classical') || q.includes('acoustic') || q.includes('jazz')) {
-    return { bass: 3, presence: 2, treble: 4, comp: 4, threshold: -20, makeup: 1.05, atmos: 0.45, summary: 'Open acoustic detail with spatial hall depth.' };
+    return { bass: 3, presence: 2, treble: 4, comp: 2, thresh: -18, makeup: 1.05, atmos: 0.45, summary: 'Open acoustic detail with spatial hall depth.' };
   }
-  return { bass: 6.0, presence: 3, treble: 4.5, comp: 12, threshold: -24, makeup: 1.08, atmos: 0.45, summary: 'AtmosForge balanced studio + spatial curve.' };
+  return { bass: 5.5, presence: 3, treble: 4, comp: 10, thresh: -24, makeup: 1.08, atmos: 0.35, summary: 'Balanced studio + Dolby Atmos enhancement curve.' };
 }
 
 async function applyAiTuningPrompt(promptText) {
   els.aiTunerStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Tuning acoustic parameters…';
   let curve = null;
-  const instruction = 'Return ONLY JSON with keys bass (-12 to 15), presence (-12 to 12), treble (-12 to 15), comp (1 to 20), threshold (-50 to 0), makeup (0.5 to 2), atmos (0 to 1), summary (under 14 words). Request: ' + promptText;
+  const instruction = 'Return ONLY JSON with keys bass (-12 to 15), presence (-12 to 12), treble (-12 to 15), comp (0 to 20), thresh (-50 to 0), makeup (0.5 to 2), atmos (0 to 1), summary (under 14 words). Request: ' + promptText;
 
   try {
     const controller = new AbortController();
@@ -2896,11 +2805,11 @@ async function applyAiTuningPrompt(promptText) {
       if (match) {
         const parsed = JSON.parse(match[0]);
         curve = {
-          bass: clamp(Number(parsed.bass ?? 6), -12, 15),
+          bass: clamp(Number(parsed.bass ?? 5), -12, 15),
           presence: clamp(Number(parsed.presence ?? 3), -12, 12),
-          treble: clamp(Number(parsed.treble ?? 4), -12, 15),
-          comp: clamp(Math.round(Number(parsed.comp ?? 12)), 1, 20),
-          threshold: clamp(Math.round(Number(parsed.threshold ?? -24)), -50, 0),
+          treble: clamp(Number(parsed.treble ?? 3.5), -12, 15),
+          comp: clamp(Math.round(Number(parsed.comp ?? 10)), 0, 20),
+          thresh: clamp(Math.round(Number(parsed.thresh ?? -24)), -50, 0),
           makeup: clamp(Number(parsed.makeup ?? 1.05), 0.5, 2),
           atmos: clamp(Number(parsed.atmos ?? 0.35), 0, 1),
           summary: String(parsed.summary || 'AI-generated acoustic EQ & Atmos profile.')
@@ -2915,8 +2824,8 @@ async function applyAiTuningPrompt(promptText) {
   els.sPresence.value = curve.presence;
   els.sTreble.value = curve.treble;
   els.sWidth.value = curve.atmos;
-  els.sThreshold.value = curve.threshold;
   els.sComp.value = curve.comp;
+  els.sThresh.value = curve.thresh;
   els.sMakeup.value = curve.makeup;
   syncSliderLabels();
 
@@ -2925,17 +2834,17 @@ async function applyAiTuningPrompt(promptText) {
     presence: curve.presence,
     treble: curve.treble,
     comp: curve.comp > 1,
-    ratio: curve.comp,
-    threshold: curve.threshold,
+    ratio: curve.comp > 1 ? curve.comp : 12,
+    threshold: curve.thresh,
     makeup: curve.makeup,
     atmos: curve.atmos
   });
 
-  if ((state.audioEl || state.enhancer.isMicActive) && !state.corsBlocked && !state.enhancer.enabled) {
+  if (state.audioEl && !state.corsBlocked && !state.enhancer.enabled) {
     try {
-      if (state.audioEl) await state.enhancer.bind(state.audioEl);
+      await state.enhancer.bind(state.audioEl);
       await state.enhancer.setEnabled(true, state.audioEl);
-      if (state.currentStation) startWatchdog();
+      startWatchdog();
       updateEnhancerUI();
       updateCtxBadge();
     } catch (_) {}
@@ -2956,11 +2865,11 @@ els.aiTunerInput.addEventListener('keydown', (e) => {
 });
 els.aiTuneCurrentBtn.addEventListener('click', () => {
   const st = state.currentStation;
-  const ctx = st ? (st.name + ' (' + (st.tags || st.codec || 'radio') + ')') : 'Active audio stream';
+  const ctx = st ? (st.name + ' (' + (st.tags || st.codec || 'radio') + ')') : 'Active live radio stream';
   applyAiTuningPrompt('Tune audio enhancer for station: ' + ctx);
 });
 
-/* ---------- Dual-Mode Visualizer (FFT Frequency Bars + Oscilloscope Waveform) ---------- */
+/* ---------- Visualizer (Spectrum Bars + Oscilloscope Waveform Overlay) ---------- */
 const vizCanvas = els.visualizer;
 const vizCtx = vizCanvas.getContext('2d');
 
@@ -2970,8 +2879,10 @@ function drawVisualizer() {
   const h = vizCanvas.height;
   vizCtx.clearRect(0, 0, w, h);
 
-  const data = state.enhancer.getSpectrumAndWaveform();
-  if (!data || !state.enhancer.enabled) {
+  const spectrum = state.enhancer.getSpectrum();
+  const waveform = state.enhancer.getWaveform();
+
+  if (!spectrum || !state.enhancer.enabled) {
     vizCtx.strokeStyle = 'rgba(128,128,128,.22)';
     vizCtx.lineWidth = 1.5;
     vizCtx.beginPath();
@@ -2981,18 +2892,15 @@ function drawVisualizer() {
     return;
   }
 
-  const spectrum = data.freq;
-  const timeData = data.time;
-  const primaryCol = getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#4b6bfb';
-  const accentCol  = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#67cba0';
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#4b6bfb';
+  const accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#67cba0';
 
-  // 1. FFT Spectrum Bars
   const bars = 36;
   const step = Math.floor(spectrum.length / bars);
   const barW = w / bars;
   const grad = vizCtx.createLinearGradient(0, h, 0, 0);
-  grad.addColorStop(0, primaryCol);
-  grad.addColorStop(1, accentCol);
+  grad.addColorStop(0, primaryColor);
+  grad.addColorStop(1, accentColor);
   vizCtx.fillStyle = grad;
 
   for (let i = 0; i < bars; i++) {
@@ -3003,20 +2911,21 @@ function drawVisualizer() {
     vizCtx.fillRect(i * barW + 1, h - barH, barW - 2, barH);
   }
 
-  // 2. Oscilloscope Time-Domain Overlay
-  vizCtx.lineWidth = 1.4;
-  vizCtx.strokeStyle = accentCol;
-  vizCtx.beginPath();
-  const sliceWidth = w / timeData.length;
-  let x = 0;
-  for (let i = 0; i < timeData.length; i += 4) {
-    const v = timeData[i] / 128.0;
-    const y = (v * h) / 2;
-    if (i === 0) vizCtx.moveTo(x, y);
-    else vizCtx.lineTo(x, y);
-    x += sliceWidth * 4;
+  if (waveform) {
+    vizCtx.lineWidth = 1.5;
+    vizCtx.strokeStyle = accentColor;
+    vizCtx.beginPath();
+    const sliceWidth = w / waveform.length;
+    let x = 0;
+    for (let i = 0; i < waveform.length; i += 4) {
+      const v = waveform[i] / 128.0;
+      const y = (v * h) / 2;
+      if (i === 0) vizCtx.moveTo(x, y);
+      else vizCtx.lineTo(x, y);
+      x += sliceWidth * 4;
+    }
+    vizCtx.stroke();
   }
-  vizCtx.stroke();
 }
 drawVisualizer();
 
@@ -3059,71 +2968,73 @@ async function runSearch() {
   }
 }
 
-/* ---------- Offline Mastering & Converter UI ---------- */
+/* ---------- Converter & Offline Mastering UI ---------- */
 els.pickFile.addEventListener('click', () => els.fileInput.click());
 els.fileInput.addEventListener('change', async () => {
   const f = els.fileInput.files && els.fileInput.files[0];
-  if (!f) return;
-  state.selectedFile = f;
-  if (state.selectedFileUrl) URL.revokeObjectURL(state.selectedFileUrl);
-  state.selectedFileUrl = URL.createObjectURL(f);
-
+  state.selectedFile = f || null;
+  if (!f) {
+    els.convertBtn.disabled = !state.masterBuffer;
+    els.convertStatus.textContent = '';
+    return;
+  }
+  els.convertBtn.disabled = true;
   els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Decoding ' + f.name + '…';
   try {
     const decoded = await decodeFile(f);
-    state.enhancer.currentBuffer = decoded;
-    state.enhancer.currentFileName = f.name.replace(/\.[^.]+$/, '');
+    state.masterBuffer = decoded;
+    state.masterFileName = f.name.replace(/\.[^.]+$/, '');
     els.convertBtn.disabled = false;
-    els.activeMasterSource.textContent = 'Source: ' + f.name + ' (' + decoded.sampleRate + ' Hz, ' + decoded.numberOfChannels + 'ch)';
-    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Ready to master or preview: ' + f.name;
+    els.convertStatus.textContent = 'Loaded: ' + f.name + ' (' + decoded.sampleRate + ' Hz, ' + decoded.numberOfChannels + 'ch)';
 
-    await playAudioSource({
-      url: state.selectedFileUrl,
-      name: f.name,
-      sub: decoded.sampleRate + ' Hz · ' + decoded.numberOfChannels + 'ch Local Audio',
-      isRadio: false
-    });
+    // Also load into main player for instant A/B listening
+    const url = URL.createObjectURL(f);
+    teardownAudio();
+    state.corsBlocked = false;
+    state.currentStation = null;
+    markActiveStation(null);
+    updateCorsBadge();
+
+    const el = createAudioElement(true);
+    wireAudioEvents(el);
+    els.audioHost.appendChild(el);
+    state.audioEl = el;
+    els.npArt.innerHTML = '<i class="fa-solid fa-file-audio"></i>';
+    els.npName.textContent = f.name;
+    els.npSub.textContent = decoded.sampleRate + ' Hz · ' + decoded.numberOfChannels + 'ch Local Track';
+    el.src = url;
   } catch (err) {
-    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ef4444"></i> Decode error: ' + err.message;
-    toast('Could not decode audio file: ' + err.message, 'err');
+    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ef4444"></i> Decode failed: ' + err.message;
+    toast('Failed to decode audio file: ' + err.message, 'err');
   }
 });
 
 els.convertBtn.addEventListener('click', async () => {
-  if (!state.enhancer.currentBuffer) {
-    toast('Choose an audio file or load the 48kHz Synth Reference first.', 'warn');
-    return;
-  }
+  if (!state.masterBuffer) return;
   els.convertBtn.disabled = true;
-  els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Rendering mastered 48kHz audio offline…';
+  els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Rendering mastered audio offline (48kHz)…';
   try {
     const settings = Object.assign({}, PRESETS[state.enhancer.preset], state.enhancer.getOverrides(), {
       atmosEnabled: els.atmosSpatialToggle.checked
     });
     const fmt = els.formatSelect.value;
     const normalize = els.normalizeCheck.checked;
-    const result = await enhanceAndConvertFromBuffer(
-      state.enhancer.currentBuffer,
-      state.enhancer.currentFileName,
-      fmt,
-      settings,
-      normalize
-    );
+    const result = await enhanceAndConvertBuffer(state.masterBuffer, state.masterFileName, fmt, settings, normalize);
     downloadBlob(result.blob, result.filename);
     const mb = (result.blob.size / 1024 / 1024).toFixed(2);
-    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Exported — ' + result.filename + ' (' + mb + ' MB)';
+    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Exported ' + result.filename + ' (' + mb + ' MB)';
     toast('Mastering complete: ' + result.filename, 'ok');
   } catch (err) {
     console.error(err);
     els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#ef4444"></i> ' + err.message;
-    toast('Mastering failed: ' + err.message, 'err');
+    toast('Export failed: ' + err.message, 'err');
   } finally {
-    els.convertBtn.disabled = !state.enhancer.currentBuffer;
+    els.convertBtn.disabled = !state.masterBuffer;
   }
 });
 
 /* ==========================================================================
-   7. MEDIA SESSION, NOTIFICATIONS & WAKE LOCK
+   MEDIA SESSION & NOTIFICATIONS
    ========================================================================== */
 const NOTIF_ICON = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%234b6bfb"/><text x="50" y="60" text-anchor="middle" font-size="50" fill="white">🎵</text></svg>';
 const ART = 'https://raw.githubusercontent.com/HexSleuth/HexAIRadio-BROWSER/main/Avatar.gif';
@@ -3148,7 +3059,8 @@ const buildArtworkList = (track) => {
 
 let mediaSessionReady = false;
 function initMediaSession() {
-  if (!('mediaSession' in navigator) || mediaSessionReady) return;
+  if (!('mediaSession' in navigator)) return;
+  if (mediaSessionReady) return;
   mediaSessionReady = true;
   try {
     navigator.mediaSession.setActionHandler('play', togglePlay);
@@ -3207,9 +3119,12 @@ function publishNowPlaying(track) {
   if (!track) return;
   updateMediaSession(track);
   showMusicNotification(track);
-  try { document.title = '▶ ' + track.name + ' — HexAudio'; } catch (_) {}
+  try { document.title = '▶ ' + track.name + ' — HEXAudio'; } catch (_) {}
 }
 
+/* ==========================================================================
+   WAKE LOCK
+   ========================================================================== */
 let wakeLock = null;
 let wakeLockActive = false;
 async function requestWakeLock() {
@@ -3229,7 +3144,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ==========================================================================
-   8. BOOT
+   BOOT
    ========================================================================== */
 loadTheme();
 
@@ -3238,12 +3153,23 @@ checkDolbyAtmosSupport().then((support) => {
   els.atmosBadge.className = 'badge ' + d.cls;
   els.atmosBadge.innerHTML = '<i class="fa-solid ' + d.icon + '"></i> ' + d.text;
   els.atmosBadge.title =
-    'E-AC-3 JOC (DD+ Atmos): ' + support.ddPlusAtmos.supported + '\n' +
-    'AC-4 Atmos: ' + support.ac4Atmos.supported + '\n' +
-    'Opus 48kHz: ' + support.opus.supported + '\n' +
-    'FLAC: ' + support.flac.supported + '\n' +
-    'Click for full codec report';
-  renderCodecGrid(support);
+    'E-AC-3 JOC (DD+ Atmos): ' + support.ddPlusAtmos + '\n' +
+    'AC-4 Atmos: ' + support.ac4Atmos + '\n' +
+    'Spatial rendering: ' + support.spatialRendering;
+
+  const items = [
+    { label: 'Dolby Digital+ Atmos', ok: support.ddPlusAtmos },
+    { label: 'Dolby AC-4 Immersive', ok: support.ac4Atmos },
+    { label: 'Opus 48kHz',           ok: support.opus },
+    { label: 'FLAC Lossless',        ok: support.flac },
+    { label: 'AAC-LC',               ok: support.aac }
+  ];
+  els.codecBadges.innerHTML = items.map(item =>
+    '<div class="codec-card' + (item.ok ? ' is-supported' : '') + '">' +
+      '<div class="codec-card__name">' + item.label + '</div>' +
+      '<div class="codec-card__state">' + (item.ok ? 'SUPPORTED' : 'UNSUPPORTED') + '</div>' +
+    '</div>'
+  ).join('');
 });
 
 loadInitialStations();
@@ -3256,15 +3182,16 @@ setInterval(updateCtxBadge, 2000);
 </script>
 
 <script>
-/* ==========================================================================
-   9. XSSGUARD & HEXGUARD RUNTIME SECURITY LAYER
-   ========================================================================== */
 (function (window, document) {
   'use strict';
 
   if (window.XSSGuard && window.HexGuard) return;
 
+  /* ======================================================================
+     PART 1 — ALLOW-LIST XSS SANITIZER
+     ====================================================================== */
   var XSSGuard = (function () {
+
     var ALLOWED_TAGS = new Set([
       'a','abbr','b','bdi','bdo','blockquote','br','caption','cite','code',
       'col','colgroup','dd','del','details','dfn','div','dl','dt','em',
@@ -3389,7 +3316,11 @@ setInterval(updateCtxBadge, 2000);
     };
   })();
 
+  /* ======================================================================
+     PART 2 — RUNTIME HARDENING
+     ====================================================================== */
   var HexGuard = (function () {
+
     var config = {
       autoStart:        true,
       profile:          'balanced',
@@ -3501,6 +3432,7 @@ setInterval(updateCtxBadge, 2000);
         }
 
         var t0 = performance.now();
+        // eslint-disable-next-line no-debugger
         debugger;
         var delta = performance.now() - t0;
 
@@ -3714,106 +3646,5 @@ setInterval(updateCtxBadge, 2000);
 
 })(window, document);
 </script>
-  <script>
-// Disable right-click
-document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-function ctrlShiftKey(e, keyCode) {
-  return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
-}
-
-document.onkeydown = (e) => {
-  // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
-  if (
-    event.keyCode === 123 ||
-    ctrlShiftKey(e, 'I') ||
-    ctrlShiftKey(e, 'J') ||
-    ctrlShiftKey(e, 'C') ||
-    (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
-  )
-    return false;
-};
-</script>
-<script>
- if (typeof document.onselectstart!="undefined" ) {
-  document.onselectstart=new Function ("return false" );
- }
- else {
-  document.onmousedown=new Function ("return false" );
-  document.onmouseup=new Function ("return true" );
- }
-</script>
-<script>
-   document.onkeydown = function(e) {
-if(event.keyCode == 123) {
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)){
-    return false;
-}
-if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)){
-    return false;
-}
-if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)){
-    return false;
-}
-}
-if (document.addEventListener) {
-    document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    }, false);
-}else{
-    document.attachEvent('oncontextmenu', function() {
-    window.event.returnValue = false;
-    });
-}
-</script>
-
-
 </body>
 </html>
