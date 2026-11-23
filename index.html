@@ -1144,7 +1144,7 @@ a { color: var(--p); }
         <canvas id="visualizer" class="np__viz" width="220" height="52"></canvas>
       </div>
 
-      <!-- Quick Audio Sources (Synth Reference & Live Mic Monitor from AtmosForge) -->
+      <!-- Quick Audio Sources -->
       <div class="source-bar">
         <button id="loadSynthBtn" class="btn">
           <i class="fa-solid fa-wave-square"></i> 48kHz Synth Reference
@@ -1606,7 +1606,6 @@ function createEnhanceGraph(ctx, settings) {
   n.mud.connect(n.presence);
   n.presence.connect(n.treble);
 
-  // Dry & Atmos Spatial path
   n.treble.connect(n.spatialDry);
   n.spatialDry.connect(n.spatialWidthBus);
 
@@ -1945,17 +1944,27 @@ const CORS_SAFE_FALLBACK = [
 async function fetchJson(path) {
   let lastErr = null;
   for (const base of MIRRORS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4500);
     try {
-      const res = await fetch(base + path, { headers: { Accept: 'application/json' }, mode: 'cors' });
+      const res = await fetch(base + path, {
+        headers: { Accept: 'application/json' },
+        mode: 'cors',
+        signal: controller.signal
+      });
+      clearTimeout(timer);
       if (!res.ok) throw new Error('HTTP ' + res.status + ' from ' + base);
       return await res.json();
-    } catch (err) { lastErr = err; }
+    } catch (err) {
+      clearTimeout(timer);
+      lastErr = err;
+    }
   }
   throw lastErr || new Error('All Radio Browser mirrors failed');
 }
 
 function normaliseStation(s) {
-  const url = s.url_resolved || s.url || '';
+  const url = (s.url_resolved || s.url || '').trim();
   return {
     id: s.stationuuid,
     name: (s.name || 'Unknown station').trim(),
@@ -2039,7 +2048,8 @@ async function renderEnhanced(audioBuffer, settings, normalize = true) {
   const targetSampleRate = 48000;
   const channels = Math.min(audioBuffer.numberOfChannels, 2);
   const length = Math.ceil(audioBuffer.duration * targetSampleRate);
-  const offline = new OfflineAudioContext(channels, length, targetSampleRate);
+  const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const offline = new OfflineCtx(channels, length, targetSampleRate);
   const src = offline.createBufferSource();
   src.buffer = audioBuffer;
   const graph = createEnhanceGraph(offline, settings || PRESETS.music);
@@ -2390,7 +2400,12 @@ function wireAudioEvents(el) {
     releaseWakeLock();
   });
   el.addEventListener('error', () => {
+    if (el.crossOrigin && !state.corsBlocked) {
+      handleCorsBlocked();
+      return;
+    }
     const code = el.error ? el.error.code : '?';
+    els.npSub.textContent = 'Stream unavailable (code ' + code + ')';
     toast('Stream error (code ' + code + '). Try another station.', 'err');
   });
   el.addEventListener('playing', () => {
@@ -2494,7 +2509,6 @@ async function handleCorsBlocked() {
   state.corsBlocked = true;
   silentTicks = 0;
   const url = state.audioEl ? state.audioEl.src : null;
-  const wasPlaying = state.audioEl && !state.audioEl.paused;
   state.enhancer.release();
   if (!url) return;
   const el = createAudioElement(false);
@@ -2502,10 +2516,10 @@ async function handleCorsBlocked() {
   el.src = url;
   state.audioEl.replaceWith(el);
   state.audioEl = el;
-  if (wasPlaying) { try { await el.play(); } catch (_) {} }
+  try { await el.play(); } catch (_) {}
   updateCorsBadge();
   updateEnhancerUI();
-  toast('This stream sends no CORS headers, so the enhancer was bypassed. Audio now plays raw. SomaFM / CORS-enabled stations can still be enhanced.', 'warn', 8000);
+  toast('Stream lacks CORS headers — switched to Raw Playback Mode so audio plays cleanly.', 'warn', 6500);
 }
 
 async function playStation(station, idx, li) {
@@ -2515,6 +2529,10 @@ async function playStation(station, idx, li) {
   state.currentIndex = typeof idx === 'number' ? idx : state.stations.indexOf(station);
   silentTicks = 0;
   updateCorsBadge();
+
+  if (state.enhancer.enabled) {
+    await state.enhancer.ensureContext();
+  }
 
   const el = createAudioElement(true);
   wireAudioEvents(el);
@@ -2532,17 +2550,24 @@ async function playStation(station, idx, li) {
 
   el.src = station.url;
 
-  try { await el.play(); } catch (err) {
-    toast('Autoplay blocked — press play on the player.', 'warn');
+  try {
+    await el.play();
+  } catch (err) {
+    if (err && err.name === 'NotAllowedError') {
+      toast('Autoplay blocked — press play on the player.', 'warn');
+    } else if (!state.corsBlocked) {
+      await handleCorsBlocked();
+      return;
+    }
   }
 
-  if (state.enhancer.enabled) {
+  if (state.enhancer.enabled && !state.corsBlocked) {
     try {
       await state.enhancer.bind(el);
       await state.enhancer.setEnabled(true, el);
       startWatchdog();
     } catch (err) {
-      console.warn('[enhancer] bind failed:', err);
+      await handleCorsBlocked();
     }
   }
 
@@ -2574,12 +2599,13 @@ function nextStation() {
   playStation(st, i, li);
 }
 
-/* ---------- 48kHz Synth Reference & Live Mic Monitor (AtmosForge) ---------- */
+/* ---------- 48kHz Synth Reference & Live Mic Monitor ---------- */
 els.loadSynthBtn.addEventListener('click', async () => {
   els.loadSynthBtn.disabled = true;
   els.npName.textContent = 'AtmosForge 48kHz Spatial Reference';
   els.npSub.textContent = 'Synthesizing 48kHz stereo spatial reference track…';
   try {
+    await state.enhancer.ensureContext();
     const buffer = await generateReferenceTrackBuffer(8);
     state.masterBuffer = buffer;
     state.masterFileName = 'atmosforge-48khz-reference';
@@ -2665,7 +2691,7 @@ function updateCorsBadge() {
 }
 
 function updateEnhancerUI() {
-  const on = state.enhancer.enabled;
+  const on = state.enhancer.enabled && !state.corsBlocked;
   els.toggleEnhance.classList.toggle('is-on', on);
   els.toggleEnhance.innerHTML = on
     ? '<i class="fa-solid fa-power-off"></i> <span>Disable Enhancer</span>'
@@ -2679,7 +2705,7 @@ els.toggleEnhance.addEventListener('click', async () => {
     return;
   }
   if (state.corsBlocked) {
-    toast('Enhancer unavailable for this CORS-blocked stream. Try a SomaFM station.', 'warn');
+    toast('Enhancer unavailable for this CORS-blocked stream. Try a SomaFM station or local track.', 'warn');
     return;
   }
   try {
@@ -2693,8 +2719,7 @@ els.toggleEnhance.addEventListener('click', async () => {
     updateEnhancerUI();
     updateCtxBadge();
   } catch (err) {
-    console.error(err);
-    toast('Could not start the enhancer: ' + err.message, 'err');
+    await handleCorsBlocked();
   }
 });
 
@@ -2879,6 +2904,22 @@ function drawVisualizer() {
   const h = vizCanvas.height;
   vizCtx.clearRect(0, 0, w, h);
 
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#4b6bfb';
+  const accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#67cba0';
+
+  if (state.playing && state.corsBlocked) {
+    const bars = 28;
+    const barW = w / bars;
+    const now = performance.now() * 0.004;
+    vizCtx.fillStyle = primaryColor;
+    for (let i = 0; i < bars; i++) {
+      const wave = 0.25 + 0.35 * Math.abs(Math.sin(now + i * 0.45)) * Math.cos(now * 0.7 - i * 0.2);
+      const barH = Math.max(3, wave * h * 0.85);
+      vizCtx.fillRect(i * barW + 1, h - barH, barW - 2, barH);
+    }
+    return;
+  }
+
   const spectrum = state.enhancer.getSpectrum();
   const waveform = state.enhancer.getWaveform();
 
@@ -2891,9 +2932,6 @@ function drawVisualizer() {
     vizCtx.stroke();
     return;
   }
-
-  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#4b6bfb';
-  const accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#67cba0';
 
   const bars = 36;
   const step = Math.floor(spectrum.length / bars);
@@ -2987,7 +3025,6 @@ els.fileInput.addEventListener('change', async () => {
     els.convertBtn.disabled = false;
     els.convertStatus.textContent = 'Loaded: ' + f.name + ' (' + decoded.sampleRate + ' Hz, ' + decoded.numberOfChannels + 'ch)';
 
-    // Also load into main player for instant A/B listening
     const url = URL.createObjectURL(f);
     teardownAudio();
     state.corsBlocked = false;
@@ -3179,472 +3216,6 @@ updateEnhancerUI();
 setInterval(updateCtxBadge, 2000);
 
 })();
-</script>
-
-<script>
-(function (window, document) {
-  'use strict';
-
-  if (window.XSSGuard && window.HexGuard) return;
-
-  /* ======================================================================
-     PART 1 — ALLOW-LIST XSS SANITIZER
-     ====================================================================== */
-  var XSSGuard = (function () {
-
-    var ALLOWED_TAGS = new Set([
-      'a','abbr','b','bdi','bdo','blockquote','br','caption','cite','code',
-      'col','colgroup','dd','del','details','dfn','div','dl','dt','em',
-      'figcaption','figure','h1','h2','h3','h4','h5','h6','hr','i','img',
-      'ins','kbd','li','mark','ol','p','pre','q','rp','rt','ruby','s','samp',
-      'small','span','strong','sub','summary','sup','table','tbody','td',
-      'tfoot','th','thead','time','tr','u','ul','var','wbr'
-    ]);
-
-    var FORBID_TAGS = new Set([
-      'script','style','iframe','frame','frameset','object','embed','applet',
-      'link','meta','base','form','input','button','textarea','select',
-      'option','optgroup','svg','math','template','noscript','noembed',
-      'noframes','xmp','plaintext','title','head','body','html','marquee',
-      'bgsound','audio','video','source','track','canvas','portal','dialog',
-      'slot','param'
-    ]);
-
-    var ALLOWED_ATTRS = new Set([
-      'abbr','align','alt','cite','class','colspan','datetime','dir','height',
-      'href','hreflang','id','lang','loading','name','open','referrerpolicy',
-      'rel','reversed','role','rowspan','scope','size','span','src','start',
-      'target','title','type','value','width','decoding'
-    ]);
-
-    var URL_ATTRS = new Set([
-      'href','src','cite','action','formaction','poster','background',
-      'longdesc','usemap','xlink:href'
-    ]);
-
-    var SAFE_SCHEMES = /^(?:https?|mailto|tel|ftp):/i;
-    var DATA_IMAGE   = /^data:image\/(?:png|gif|jpe?g|webp|bmp|avif);base64,[a-z0-9+/=]+$/i;
-    var ATTR_NAME    = /^[a-z][a-z0-9-]*$/;
-    var CTRL_CHARS   = /[\u0000-\u0020\u007f-\u00a0\u1680\u2000-\u200f\u2028\u2029\u202f\u205f\u3000\ufeff]/g;
-
-    function compact(v) { return String(v).replace(CTRL_CHARS, ''); }
-
-    function isSafeURL(value, allowDataImage) {
-      var v = compact(value);
-      if (!v) return true;
-      if (v.charAt(0) === '#' || v.charAt(0) === '?' || v.charAt(0) === '/') return true;
-      if (v.indexOf('./') === 0 || v.indexOf('../') === 0) return true;
-      if (SAFE_SCHEMES.test(v)) return true;
-      if (allowDataImage && DATA_IMAGE.test(v)) return true;
-      return false;
-    }
-
-    function cleanNode(node, doc) {
-      if (node.nodeType === 3) return doc.createTextNode(node.nodeValue);
-      if (node.nodeType !== 1) return null;
-
-      var tag = node.tagName.toLowerCase();
-      if (FORBID_TAGS.has(tag)) return null;
-
-      var keep = ALLOWED_TAGS.has(tag);
-      var target = keep ? doc.createElement(tag) : doc.createDocumentFragment();
-
-      if (keep) {
-        var attrs = Array.prototype.slice.call(node.attributes);
-        for (var i = 0; i < attrs.length; i++) {
-          var name  = attrs[i].name.toLowerCase();
-          var value = attrs[i].value;
-
-          if (!ATTR_NAME.test(name)) continue;
-          if (name.indexOf('on') === 0) continue;
-          if (name === 'style') continue;
-          if (!ALLOWED_ATTRS.has(name) &&
-              name.indexOf('aria-') !== 0 &&
-              name.indexOf('data-') !== 0) continue;
-
-          if (URL_ATTRS.has(name) &&
-              !isSafeURL(value, tag === 'img' && name === 'src')) continue;
-
-          try { target.setAttribute(name, value); } catch (e) {}
-        }
-
-        if (tag === 'a' && target.getAttribute('href')) {
-          target.setAttribute('rel', 'noopener noreferrer nofollow');
-          if (!target.getAttribute('target')) target.setAttribute('target', '_blank');
-        }
-        if (tag === 'img') {
-          if (!target.hasAttribute('alt')) target.setAttribute('alt', '');
-          target.setAttribute('loading', 'lazy');
-          target.setAttribute('referrerpolicy', 'no-referrer');
-        }
-      }
-
-      var children = Array.prototype.slice.call(node.childNodes);
-      for (var c = 0; c < children.length; c++) {
-        var cleaned = cleanNode(children[c], doc);
-        if (cleaned) target.appendChild(cleaned);
-      }
-      return target;
-    }
-
-    function sanitize(dirty) {
-      if (dirty == null) return '';
-      var doc = new DOMParser().parseFromString(
-        '<!doctype html><html><body>' + String(dirty), 'text/html'
-      );
-      var out = doc.createElement('div');
-      var kids = Array.prototype.slice.call(doc.body.childNodes);
-      for (var i = 0; i < kids.length; i++) {
-        var cleaned = cleanNode(kids[i], doc);
-        if (cleaned) out.appendChild(cleaned);
-      }
-      return out.innerHTML;
-    }
-
-    function sanitizeToElement(dirty) {
-      var holder = document.createElement('div');
-      holder.innerHTML = sanitize(dirty);
-      return holder;
-    }
-
-    return {
-      sanitize: sanitize,
-      sanitizeToElement: sanitizeToElement,
-      ALLOWED_TAGS: ALLOWED_TAGS,
-      FORBID_TAGS: FORBID_TAGS,
-      ALLOWED_ATTRS: ALLOWED_ATTRS
-    };
-  })();
-
-  /* ======================================================================
-     PART 2 — RUNTIME HARDENING
-     ====================================================================== */
-  var HexGuard = (function () {
-
-    var config = {
-      autoStart:        true,
-      profile:          'balanced',
-      hotkeys:          true,
-      contextMenu:      true,
-      drag:             true,
-      selection:        true,
-      consoleBlackout:  false,
-      devtoolsDetect:   'log',
-      sourceNoise:      false,
-      punishWindowMs:   60000,
-      punishStrikes:    3
-    };
-
-    var status = {
-      started: false,
-      hotkeys: false, contextMenu: false, drag: false, selection: false,
-      console: false, devtools: false, sourceNoise: false
-    };
-
-    var timers    = [];
-    var listeners = [];
-    var punishState = { last: 0, strikes: 0 };
-
-    function nowStr() {
-      var d = new Date();
-      return String(d.getHours()).padStart(2, '0') + ':' +
-             String(d.getMinutes()).padStart(2, '0') + ':' +
-             String(d.getSeconds()).padStart(2, '0');
-    }
-
-    function emit(type, detail) {
-      try {
-        document.dispatchEvent(new CustomEvent('hexguard:' + type, { detail: detail }));
-      } catch (e) {}
-    }
-
-    function log(msg, level) {
-      emit('log', { time: nowStr(), message: msg, level: level || 'info' });
-    }
-
-    function isNative(fn) {
-      try {
-        return typeof fn === 'function' &&
-          /\{\s*\[native code\]\s*\}/.test(Function.prototype.toString.call(fn));
-      } catch (e) { return false; }
-    }
-
-    function exempt(target) {
-      if (!target || !target.closest) return false;
-      return !!target.closest('[data-hexguard-allow]');
-    }
-
-    function isFormField(target) {
-      if (!target || !target.closest) return false;
-      return !!target.closest(
-        'input, textarea, select, [contenteditable=""], [contenteditable="true"]'
-      );
-    }
-
-    function isMedia(target) {
-      if (!target || !target.closest) return false;
-      return !!target.closest('audio, video, canvas, picture');
-    }
-
-    function addListener(target, type, handler, options) {
-      target.addEventListener(type, handler, options);
-      listeners.push({ target: target, type: type, handler: handler, options: options });
-    }
-
-    function punish(reason) {
-      var t = Date.now();
-      if (t - punishState.last < config.punishWindowMs) {
-        punishState.strikes++;
-        if (punishState.strikes < config.punishStrikes) return;
-      } else {
-        punishState.strikes = 1;
-      }
-      punishState.last = t;
-
-      emit('punish', { reason: reason, time: t });
-      log('PUNISH: ' + reason, 'error');
-
-      if (config.devtoolsDetect === 'punish') {
-        try {
-          document.documentElement.innerHTML = '';
-          window.location.reload();
-        } catch (e) {}
-      }
-    }
-
-    function startAntiDevTools() {
-      if (status.devtools || config.devtoolsDetect === 'off') return;
-      status.devtools = true;
-
-      var TOL_MS       = 150;
-      var VIEWPORT_TOL = 240;
-      var strikes      = 0;
-
-      function tick() {
-        if (document.hidden) return;
-
-        if (!isNative(Date.now) ||
-            !isNative(window.eval) ||
-            !isNative(Function.prototype.toString)) {
-          log('runtime tampering detected', 'warn');
-          if (config.devtoolsDetect === 'punish') punish('runtime tampering detected');
-          return;
-        }
-
-        var t0 = performance.now();
-        // eslint-disable-next-line no-debugger
-        debugger;
-        var delta = performance.now() - t0;
-
-        var wDelta = Math.abs(window.outerWidth  - window.innerWidth);
-        var hDelta = Math.abs(window.outerHeight - window.innerHeight);
-
-        var suspicious = delta > TOL_MS ||
-                         wDelta > VIEWPORT_TOL ||
-                         hDelta > VIEWPORT_TOL;
-
-        strikes = suspicious ? strikes + 1 : Math.max(0, strikes - 1);
-
-        if (strikes >= 3) {
-          strikes = 0;
-          log('DevTools detected', 'warn');
-          if (config.devtoolsDetect === 'punish') punish('DevTools detected');
-        }
-      }
-
-      timers.push(window.setInterval(tick, 1000));
-      log('DevTools watchdog started');
-    }
-
-    function startHotkeys() {
-      if (status.hotkeys || !config.hotkeys) return;
-      status.hotkeys = true;
-
-      var BLOCKED = [
-        { ctrl: false, shift: false, alt: false, meta: false, key: 'F12', code: 123, label: 'F12' },
-        { ctrl: true,  shift: true,  alt: false, meta: false, key: 'I', code: 73,  label: 'Ctrl+Shift+I' },
-        { ctrl: true,  shift: true,  alt: false, meta: false, key: 'J', code: 74,  label: 'Ctrl+Shift+J' },
-        { ctrl: true,  shift: true,  alt: false, meta: false, key: 'C', code: 67,  label: 'Ctrl+Shift+C' },
-        { ctrl: true,  shift: true,  alt: false, meta: false, key: 'K', code: 75,  label: 'Ctrl+Shift+K' },
-        { ctrl: true,  shift: false, alt: false, meta: false, key: 'U', code: 85,  label: 'Ctrl+U' },
-        { ctrl: false, shift: false, alt: true,  meta: true,  key: 'I', code: 73,  label: 'Cmd+Alt+I' },
-        { ctrl: false, shift: false, alt: true,  meta: true,  key: 'J', code: 74,  label: 'Cmd+Alt+J' },
-        { ctrl: false, shift: false, alt: true,  meta: true,  key: 'C', code: 67,  label: 'Cmd+Alt+C' }
-      ];
-
-      function match(ev, r) {
-        return r.ctrl === ev.ctrlKey && r.shift === ev.shiftKey &&
-               r.alt  === ev.altKey  && r.meta  === ev.metaKey &&
-               ((ev.key || '').toUpperCase() === r.key ||
-                ev.keyCode === r.code || ev.which === r.code);
-      }
-
-      addListener(document, 'keydown', function (ev) {
-        for (var i = 0; i < BLOCKED.length; i++) {
-          if (match(ev, BLOCKED[i])) {
-            ev.preventDefault();
-            log('blocked hotkey ' + BLOCKED[i].label);
-            return;
-          }
-        }
-      }, true);
-
-      log('hotkey lockdown active');
-    }
-
-    function startContextMenu() {
-      if (status.contextMenu || !config.contextMenu) return;
-      status.contextMenu = true;
-      addListener(document, 'contextmenu', function (ev) {
-        if (isFormField(ev.target) || exempt(ev.target)) return;
-        ev.preventDefault();
-        log('context menu blocked');
-      }, true);
-    }
-
-    function startDrag() {
-      if (status.drag || !config.drag) return;
-      status.drag = true;
-      addListener(document, 'dragstart', function (ev) {
-        if (isFormField(ev.target) || isMedia(ev.target) || exempt(ev.target)) return;
-        ev.preventDefault();
-      }, true);
-    }
-
-    function startSelection() {
-      if (status.selection || !config.selection) return;
-      status.selection = true;
-      addListener(document, 'selectstart', function (ev) {
-        if (isFormField(ev.target) || exempt(ev.target)) return;
-        ev.preventDefault();
-      }, true);
-    }
-
-    function startConsoleBlackout() {
-      if (status.console || !config.consoleBlackout) return;
-      status.console = true;
-      var noop = function () { return null; };
-      var methods = [
-        'log','debug','warn','error','info','dir','dirxml','assert','table',
-        'trace','group','groupCollapsed','groupEnd','time','timeEnd','timeLog',
-        'profile','profileEnd','count','countReset'
-      ];
-      for (var i = 0; i < methods.length; i++) {
-        try { console[methods[i]] = noop; } catch (e) {}
-      }
-      log('console output blacked out');
-    }
-
-    var NOISE_SKIP = new Set([
-      'script','style','link','meta','title','textarea','input','select',
-      'option','iframe','canvas','svg','template','video','audio','picture',
-      'object','embed'
-    ]);
-
-    function rnd(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    function rndStr(min, max) {
-      var a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      var out = '', n = rnd(min, max);
-      for (var i = 0; i < n; i++) out += a.charAt(Math.floor(Math.random() * a.length));
-      return out;
-    }
-
-    function applyNoise() {
-      var body = document.body;
-      if (!body) return;
-      var els = body.querySelectorAll('*'), budget = 400;
-      for (var i = 0; i < els.length && budget > 0; i++) {
-        var el = els[i];
-        if (el.hasAttribute('data-hexguard-done')) continue;
-        if (el.closest('[data-hexguard-allow]')) continue;
-        if (NOISE_SKIP.has(el.tagName.toLowerCase())) continue;
-        el.setAttribute('data-hexguard-done', '');
-        budget--;
-
-        var ac = rnd(3, 10);
-        for (var a = 0; a < ac; a++) {
-          try { el.setAttribute(rndStr(6, 12), Math.random() < 0.5 ? rndStr(2, 8) : ''); }
-          catch (e) {}
-        }
-        var cc = rnd(1, 3);
-        for (var k = 0; k < cc; k++) {
-          try { el.classList.add(rndStr(6, 20)); } catch (e) {}
-        }
-      }
-    }
-
-    function startSourceNoise() {
-      if (status.sourceNoise || !config.sourceNoise) return;
-      status.sourceNoise = true;
-      var run = function () { try { applyNoise(); } catch (e) {} };
-      if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(run, { timeout: 2000 });
-      } else {
-        window.setTimeout(run, 700);
-      }
-      log('DOM source noise scheduled');
-    }
-
-    function start(profile) {
-      if (profile === 'strict') {
-        config.profile = 'strict';
-        config.consoleBlackout = true;
-        config.devtoolsDetect  = 'punish';
-      }
-      if (status.started) return status;
-      status.started = true;
-      startHotkeys();
-      startContextMenu();
-      startDrag();
-      startSelection();
-      startConsoleBlackout();
-      startSourceNoise();
-      startAntiDevTools();
-      emit('start', status);
-      return status;
-    }
-
-    function stop() {
-      for (var i = 0; i < timers.length; i++) window.clearInterval(timers[i]);
-      timers.length = 0;
-      for (var j = 0; j < listeners.length; j++) {
-        var l = listeners[j];
-        try { l.target.removeEventListener(l.type, l.handler, l.options); } catch (e) {}
-      }
-      listeners.length = 0;
-      status.started = false;
-      emit('stop', status);
-    }
-
-    function pause()  { stop(); }
-    function resume() { return start(); }
-
-    return {
-      config: config,
-      status: status,
-      start: start, stop: stop, pause: pause, resume: resume,
-      logEvent: log,
-      isNative: isNative,
-      randomInt: rnd, randomString: rndStr
-    };
-  })();
-
-  window.XSSGuard = XSSGuard;
-  window.HexGuard = HexGuard;
-
-  function boot() {
-    if (HexGuard.config.autoStart) HexGuard.start();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot, { once: true });
-  } else {
-    boot();
-  }
-
-})(window, document);
 </script>
 </body>
 </html>
