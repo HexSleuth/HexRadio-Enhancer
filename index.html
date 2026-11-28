@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-<meta name="description" content="HexAudio & AtmosForge — Real-time audio quality enhancer, Dolby Atmos spatial DSP, HLS.js + Shaka engines, worldwide radio, free AI tuner (no API key).">
+<meta name="description" content="HexAudio — Radio stream player with 18 live visualizer presets, custom backgrounds, WebM video export, real-time audio enhancer and FFmpeg.wasm stream capture.">
 <meta name="theme-color" content="#4b6bfb">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>HexAudio — Real-Time Audio Enhancer & AtmosForge Studio</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📻</text></svg>">
+<title>HexAudio — Radio + Visualizer Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎛️</text></svg>">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.14.1/dist/shaka-player.compiled.js" crossorigin="anonymous"></script>
@@ -16,17 +17,16 @@
 :root,[data-theme="corporate"]{--p:#4b6bfb;--pc:#fff;--s:#7b92b2;--sc:#fff;--a:#67cba0;--ac:#10241b;--n:#181a2a;--nc:#fff;--b1:#fff;--b2:#f2f2f2;--b3:#e6e6e6;--bc:#181a2a;--rounded-box:12px;--rounded-btn:10px;--tw-border:color-mix(in srgb,var(--bc) 15%,transparent);--tw-muted:color-mix(in srgb,var(--bc) 60%,transparent);--tw-muted-2:color-mix(in srgb,var(--bc) 45%,transparent);--tw-shadow:0 10px 30px color-mix(in srgb,var(--bc) 15%,transparent);--tw-hover:color-mix(in srgb,var(--bc) 8%,transparent)}
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100%;overflow-x:hidden}
-html{color-scheme:light dark}
 body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--b1);color:var(--bc);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom,0)}
 button,input,select,textarea{font:inherit;color:inherit}
-button,a,.chip,.preset,.station,.theme-card,.switch,input[type=range]{touch-action:manipulation}
+button,a,.chip,.preset,.station,.theme-card,.switch,input[type=range],.viz-preset{touch-action:manipulation}
 img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!important}
 .app{max-width:1400px;margin:0 auto;padding:max(12px,env(safe-area-inset-top,12px)) max(12px,env(safe-area-inset-right,12px)) max(18px,env(safe-area-inset-bottom,18px)) max(12px,env(safe-area-inset-left,12px))}
 @media(min-width:768px){.app{padding:20px}}
 .topbar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:14px;background:var(--b2);border:1px solid var(--tw-border);border-radius:var(--rounded-box);box-shadow:var(--tw-shadow);position:sticky;top:max(8px,env(safe-area-inset-top,8px));z-index:60;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 @media(min-width:768px){.topbar{position:static;padding:12px 16px;margin-bottom:16px;backdrop-filter:none;-webkit-backdrop-filter:none}}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto}
-.brand i{font-size:1.3rem;color:var(--p);flex-shrink:0}
+.brand i{font-size:1.35rem;color:var(--p);flex-shrink:0}
 .brand h1{font-size:1.02rem;margin:0;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand h1 span{color:var(--tw-muted);font-weight:400}
 @media(min-width:768px){.brand{flex:0 0 auto}.brand h1{font-size:1.15rem}}
@@ -39,11 +39,12 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .badge--muted{opacity:.85}
 @media(max-width:640px){.badges{order:3;flex-basis:100%;padding-bottom:2px}.badge{font-size:.64rem;padding:4px 9px}}
 .header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border:1px solid var(--tw-border);background:var(--b3);color:var(--bc);border-radius:var(--rounded-btn);padding:8px 12px;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;min-width:40px;border:1px solid var(--tw-border);background:var(--b3);color:var(--bc);border-radius:var(--rounded-btn);padding:8px 12px;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s}
 .icon-btn:hover{background:var(--tw-hover)}
 .icon-btn:active{transform:scale(.97)}
 .icon-btn--primary{background:var(--p);color:var(--pc);border-color:transparent}
-@media(max-width:640px){.icon-btn span{display:none}.icon-btn{min-width:40px;width:40px;height:40px;padding:0}}
+.icon-btn--danger{background:#dc2626;color:#fff;border-color:transparent}
+@media(max-width:640px){.icon-btn span{display:none}.icon-btn{padding:0;width:40px;height:40px}}
 .theme-panel{position:fixed;inset:0;z-index:1000;background:color-mix(in srgb,var(--bc) 55%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto}
 @media(min-width:640px){.theme-panel{align-items:center;padding:16px}}
 .theme-panel.open{display:flex}
@@ -54,7 +55,7 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .theme-panel__close{min-height:38px;background:var(--b2);border:1px solid var(--tw-border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.84rem;font-weight:600;color:var(--bc);display:inline-flex;align-items:center;gap:6px}
 .theme-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin-bottom:16px;max-height:50dvh;overflow-y:auto;padding-right:4px;-webkit-overflow-scrolling:touch}
 @media(max-width:480px){.theme-gallery{grid-template-columns:repeat(3,1fr);gap:8px}}
-.theme-card{border:2px solid var(--tw-border);border-radius:10px;padding:8px;cursor:pointer;background:var(--b2);transition:transform .15s,border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:6px;min-height:58px}
+.theme-card{border:2px solid var(--tw-border);border-radius:10px;padding:8px;cursor:pointer;background:var(--b2);transition:transform .15s,border-color .15s;display:flex;flex-direction:column;gap:6px;min-height:58px}
 .theme-card:hover{transform:translateY(-2px);box-shadow:var(--tw-shadow)}
 .theme-card.active{border-color:var(--p);box-shadow:0 0 0 2px color-mix(in srgb,var(--p) 30%,transparent)}
 .swatch-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:24px;border-radius:6px;overflow:hidden}
@@ -76,7 +77,7 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .custom-actions .btn{flex:1 1 140px}
 .layout{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
 .panel--player{order:1}.panel--stations{order:2}
-@media(min-width:980px){.layout{grid-template-columns:350px 1fr;gap:16px}.panel--stations{order:1}.panel--player{order:2}}
+@media(min-width:980px){.layout{grid-template-columns:340px 1fr;gap:16px}.panel--stations{order:1}.panel--player{order:2}}
 .panel{background:var(--b2);border:1px solid var(--tw-border);border-radius:var(--rounded-box);padding:14px;box-shadow:var(--tw-shadow);min-width:0}
 .panel__head h2{margin:0 0 12px;font-size:.82rem;letter-spacing:.6px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
 .search{display:flex;align-items:center;gap:8px;background:var(--b3);border:1px solid var(--tw-border);border-radius:var(--rounded-btn);padding:6px 8px 6px 12px;margin-bottom:10px}
@@ -107,20 +108,13 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .station-list__empty{text-align:center;color:var(--tw-muted);padding:32px 10px;font-size:.84rem}
 .nowplaying{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--b3);border:1px solid var(--tw-border);margin-bottom:10px}
 .np__art{width:52px;height:52px;flex:0 0 52px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--a));display:grid;place-items:center;font-size:1.2rem;color:var(--pc);overflow:hidden}
-@media(min-width:640px){.np__art{width:56px;height:56px;flex-basis:56px;font-size:1.25rem}}
+@media(min-width:640px){.np__art{width:56px;height:56px;flex-basis:56px}}
 .np__art img{width:100%;height:100%;object-fit:cover}
 .np__meta{flex:1;min-width:0}
 .np__name{font-weight:700;font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .np__sub{font-size:.74rem;color:var(--tw-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.np__viz{width:220px;height:52px;flex:0 0 auto;display:block;border-radius:8px;background:color-mix(in srgb,var(--b1) 65%,transparent)}
-@media(max-width:639px){.np__viz{width:110px;height:44px}}
-.source-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-.source-bar .btn{flex:1 1 150px;font-size:.78rem;min-height:36px;padding:7px 11px}
-.audio-host{margin-bottom:14px}
-.audio-host audio{width:100%;height:44px;border-radius:var(--rounded-btn);outline:none;display:block}
-.enhancer{border:1px solid var(--tw-border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--b3)}
-.enhancer__head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
-.enhancer__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
+.np__actions{display:flex;gap:4px;flex-shrink:0}
+.np__actions .icon-btn{padding:8px;min-width:36px;min-height:36px;font-size:.8rem}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border-radius:var(--rounded-btn);padding:9px 14px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--tw-border);background:var(--b2);color:var(--bc);transition:background .15s,transform .1s,border-color .15s;white-space:nowrap}
 .btn:hover{background:var(--tw-hover)}
 .btn:active{transform:scale(.97)}
@@ -129,6 +123,34 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .btn--primary:hover{background:color-mix(in srgb,var(--p) 85%,black)}
 .btn--primary.is-on{background:#16a34a;box-shadow:0 4px 14px color-mix(in srgb,#22c55e 40%,transparent);color:#fff}
 .btn--danger{background:#dc2626;color:#fff;border-color:transparent}
+/* === Visualizer === */
+.viz-stage{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:12px;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 40px rgba(0,0,0,.4)}
+@media(max-width:768px){.viz-stage{aspect-ratio:4/3}}
+.viz-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:auto}
+.viz-badge{position:absolute;top:10px;left:10px;padding:4px 10px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;font-size:.68rem;font-weight:700;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);letter-spacing:.4px;text-transform:uppercase;z-index:2}
+.viz-fps{position:absolute;top:10px;right:10px;padding:4px 9px;background:rgba(0,0,0,.55);color:#a3e635;border-radius:999px;font-size:.62rem;font-weight:700;font-variant-numeric:tabular-nums;z-index:2}
+.viz-controls{background:var(--b3);border:1px solid var(--tw-border);border-radius:12px;padding:12px;margin-bottom:14px}
+.viz-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;margin-bottom:12px}
+.viz-preset{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--b2);border:1px solid var(--tw-border);border-radius:8px;color:var(--tw-muted);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;text-align:left;min-height:36px}
+.viz-preset:hover{background:var(--tw-hover);color:var(--bc)}
+.viz-preset.is-active{background:color-mix(in srgb,var(--p) 22%,var(--b2));border-color:var(--p);color:var(--bc);box-shadow:0 0 0 1px var(--p)}
+.viz-preset i{font-size:.85rem;opacity:.9;flex-shrink:0}
+.viz-tweaks{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:10px}
+.viz-bg-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:10px;border-top:1px solid var(--tw-border)}
+.viz-bg-row .select{flex:1 1 160px;min-width:0}
+.viz-bg-row .btn{flex:0 0 auto;min-height:36px;font-size:.78rem;padding:7px 11px}
+.viz-export-status{font-size:.72rem;color:var(--tw-muted);margin-top:8px;min-height:16px;word-break:break-word}
+.viz-export-status b{color:var(--bc)}
+/* === Sliders / switches === */
+.slider{display:flex;flex-direction:column;gap:8px}
+.slider>span{font-size:.74rem;color:var(--tw-muted);display:flex;align-items:center;gap:6px}
+.slider>span b{color:var(--bc);font-variant-numeric:tabular-nums;margin-left:auto}
+.slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline:none;background:linear-gradient(90deg,var(--p),var(--a));opacity:.92;margin:4px 0}
+.slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--pc);border:3px solid var(--p);cursor:pointer;box-shadow:0 2px 6px color-mix(in srgb,var(--bc) 40%,transparent)}
+.slider input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--pc);border:3px solid var(--p);cursor:pointer}
+.enhancer{border:1px solid var(--tw-border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--b3)}
+.enhancer__head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.enhancer__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
 .presets{display:flex;flex-wrap:nowrap;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 @media(min-width:640px){.presets{flex-wrap:wrap;overflow-x:visible;padding-bottom:0}}
 .presets::-webkit-scrollbar{display:none}
@@ -137,12 +159,6 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .preset.is-active{background:color-mix(in srgb,var(--p) 25%,var(--b2));border-color:var(--p);color:var(--bc);font-weight:600}
 .sliders{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:640px){.sliders{grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px 20px}}
-.slider{display:flex;flex-direction:column;gap:8px}
-.slider>span{font-size:.74rem;color:var(--tw-muted);display:flex;align-items:center;gap:6px}
-.slider>span b{color:var(--bc);font-variant-numeric:tabular-nums;margin-left:auto}
-.slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline:none;background:linear-gradient(90deg,var(--p),var(--a));opacity:.92;margin:4px 0}
-.slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--pc);border:3px solid var(--p);cursor:pointer;box-shadow:0 2px 6px color-mix(in srgb,var(--bc) 40%,transparent)}
-.slider input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--pc);border:3px solid var(--p);cursor:pointer}
 .toggles{margin-top:14px;display:flex;flex-direction:column;gap:6px}
 .switch{display:flex;align-items:center;gap:12px;cursor:pointer;min-height:40px}
 .switch input{display:none}
@@ -152,17 +168,26 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .switch input:checked+.switch__track .switch__thumb{left:23px;background:var(--pc)}
 .switch__label{font-size:.78rem;color:var(--tw-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .switch__label small{opacity:.75}
-.converter{border:1px solid var(--tw-border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--b3)}
-.converter__head{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-.converter__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
+.audio-host{margin-bottom:14px}
+.audio-host audio{width:100%;height:44px;border-radius:var(--rounded-btn);outline:none;display:block}
+.stream-engine,.recorder,.converter,.ai-tuner{border:1px solid var(--tw-border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--b3)}
+.stream-engine__head,.recorder__head,.converter__head,.ai-tuner__head{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.stream-engine__head h3,.recorder__head h3,.converter__head h3,.ai-tuner__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
 .hint{font-size:.7rem;color:var(--tw-muted-2)}
-.converter__row{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
-.converter__row .btn,.converter__row .select{width:100%}
-@media(min-width:640px){.converter__row{align-items:center}.converter__row .btn,.converter__row .select{width:auto}}
-.select{min-height:40px;background:var(--b2);color:var(--bc);border:1px solid var(--tw-border);border-radius:var(--rounded-btn);padding:9px 12px;font-size:.82rem;outline:none;flex:1 1 160px;min-width:0}
+.stream-engine__row,.recorder__row,.converter__row,.ai-tuner__row{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.stream-engine__row .ai-tuner__input{flex:1 1 260px}
+.stream-engine__demos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.stream-engine__demos .btn{flex:1 1 120px;font-size:.74rem;min-height:34px;padding:6px 10px}
+.stream-engine__status,.recorder__status,.converter__status,.ai-tuner__status{margin-top:10px;font-size:.76rem;color:var(--tw-muted);min-height:18px;word-break:break-word}
+.select{min-height:40px;background:var(--b2);color:var(--bc);border:1px solid var(--tw-border);border-radius:var(--rounded-btn);padding:9px 12px;font-size:.82rem;outline:none;min-width:0}
+.ai-tuner__input{flex:1 1 100%;min-width:0;min-height:42px;background:var(--b2);color:var(--bc);border:1px solid var(--tw-border);border-radius:var(--rounded-btn);padding:9px 12px;font-size:16px;outline:none}
+@media(min-width:640px){.ai-tuner__input{flex:1 1 220px;font-size:.84rem;min-height:40px}}
+.ai-tuner__input::placeholder{color:var(--tw-muted-2)}
+.ai-tuner__desc{margin:0 0 10px;font-size:.76rem;color:var(--tw-muted)}
+.ai-tuner__quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--tw-border)}
+.ai-tuner__quick .chip{font-size:.7rem;padding:5px 10px;min-height:30px}
 .converter__opts{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:10px;font-size:.76rem;color:var(--tw-muted)}
 .converter__opts label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-.converter__status{margin-top:10px;font-size:.76rem;color:var(--tw-muted);min-height:18px;word-break:break-word}
 .codec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--tw-border)}
 .codec-card{padding:8px 10px;border-radius:8px;background:var(--b2);border:1px solid var(--tw-border);font-size:.72rem}
 .codec-card.is-supported{border-color:color-mix(in srgb,#22c55e 45%,transparent)}
@@ -171,28 +196,9 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .codec-card__state{font-weight:700;margin-top:2px;color:var(--tw-muted)}
 .codec-card.is-supported .codec-card__state{color:#22c55e}
 .codec-card.is-partial .codec-card__state{color:#f59e0b}
-.stream-engine{border:1px solid var(--tw-border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--b3)}
-.stream-engine__head{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between;margin-bottom:10px}
-.stream-engine__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
-.stream-engine__row{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
-.stream-engine__row .ai-tuner__input{flex:1 1 260px}
-.stream-engine__row .btn{flex:1 1 auto}
-.stream-engine__demos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.stream-engine__demos .btn{flex:1 1 120px;font-size:.74rem;min-height:34px;padding:6px 10px}
-.stream-engine__status{margin-top:10px;font-size:.76rem;color:var(--tw-muted);min-height:18px;word-break:break-word}
-.ai-tuner{border:1px solid var(--tw-border);border-radius:12px;padding:14px;background:var(--b3)}
-.ai-tuner__head{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between;margin-bottom:10px}
-.ai-tuner__head h3{margin:0;font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tw-muted);display:flex;align-items:center;gap:8px}
-.ai-tuner__desc{margin:0 0 10px;font-size:.76rem;color:var(--tw-muted)}
-.ai-tuner__row{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
-.ai-tuner__input{flex:1 1 100%;min-width:0;min-height:42px;background:var(--b2);color:var(--bc);border:1px solid var(--tw-border);border-radius:var(--rounded-btn);padding:9px 12px;font-size:16px;outline:none}
-@media(min-width:640px){.ai-tuner__input{flex:1 1 220px;font-size:.84rem;min-height:40px}.ai-tuner__row{align-items:center}}
-.ai-tuner__row .btn{flex:1 1 calc(50% - 4px)}
-@media(min-width:640px){.ai-tuner__row .btn{flex:0 0 auto}}
-.ai-tuner__input::placeholder{color:var(--tw-muted-2)}
-.ai-tuner__status{margin-top:10px;font-size:.76rem;color:var(--tw-muted);min-height:18px;word-break:break-word}
-.ai-tuner__quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--tw-border)}
-.ai-tuner__quick .chip{font-size:.7rem;padding:5px 10px;min-height:30px}
+.progress-bar{width:100%;height:8px;background:var(--b2);border-radius:999px;overflow:hidden;margin-top:10px;border:1px solid var(--tw-border)}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--p),var(--a));transition:width .25s ease}
+.ffmpeg-hint{font-size:.7rem;color:var(--tw-muted-2);align-self:center}
 .toasts{position:fixed;right:12px;bottom:max(12px,env(safe-area-inset-bottom,12px));left:12px;z-index:900;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 @media(min-width:640px){.toasts{right:20px;bottom:20px;left:auto;align-items:flex-end}}
 .toast{min-width:240px;max-width:400px;width:fit-content;padding:11px 14px;border-radius:10px;font-size:.8rem;line-height:1.4;background:var(--b1);color:var(--bc);border:1px solid var(--tw-border);border-left:4px solid var(--p);box-shadow:var(--tw-shadow);animation:slideIn .22s ease;pointer-events:auto;word-wrap:break-word}
@@ -200,15 +206,15 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 .toast--err{border-left-color:#ef4444}
 .toast--ok{border-left-color:#22c55e}
 @keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
-@media(max-width:640px){.app{padding:10px 10px max(18px,env(safe-area-inset-bottom,18px))}.topbar{padding:10px 12px;gap:8px;margin-bottom:12px}.panel{padding:12px}.enhancer,.converter,.ai-tuner,.stream-engine{padding:12px}.nowplaying{padding:10px;gap:10px}.np__art{width:44px;height:44px;flex-basis:44px;font-size:1rem}.np__name{font-size:.86rem}.np__sub{font-size:.7rem}}
+@media(max-width:640px){.app{padding:10px 10px max(18px,env(safe-area-inset-bottom,18px))}.topbar{padding:10px 12px;gap:8px;margin-bottom:12px}.panel{padding:12px}.enhancer,.converter,.ai-tuner,.stream-engine,.recorder,.viz-controls{padding:12px}.nowplaying{padding:10px;gap:10px}.np__art{width:44px;height:44px;flex-basis:44px}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><i class="fa-solid fa-tower-broadcast"></i><h1>HexRadio<span>Enhancer</span></h1></div>
+    <div class="brand"><i class="fa-solid fa-tower-cell"></i><h1>HexRadio<span>Visualizer</span></h1></div>
     <div class="badges">
-      <span id="atmosBadge" class="badge badge--muted"><i class="fa-solid fa-circle-notch fa-spin"></i> Checking Atmos…</span>
+      <span id="atmosBadge" class="badge badge--muted"><i class="fa-solid fa-circle-notch fa-spin"></i> Probing DSP…</span>
       <span id="ctxBadge" class="badge badge--muted"><i class="fa-solid fa-power-off"></i> AudioContext idle</span>
       <span id="corsBadge" class="badge badge--ok"><i class="fa-solid fa-shield-halved"></i> CORS ready</span>
     </div>
@@ -304,17 +310,69 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 
     <section class="panel panel--player">
       <div class="nowplaying">
-        <div class="np__art" id="npArt"><i class="fa-solid fa-music"></i></div>
+        <div class="np__art" id="npArt"><i class="fa-solid fa-compact-disc"></i></div>
         <div class="np__meta">
           <div class="np__name" id="npName">Nothing playing</div>
-          <div class="np__sub" id="npSub">Pick a station, load a track, or launch 48kHz Synth</div>
+          <div class="np__sub" id="npSub">Pick a station or load a stream</div>
         </div>
-        <canvas id="visualizer" class="np__viz" width="220" height="52"></canvas>
+        <div class="np__actions">
+          <button id="prevBtn" class="icon-btn" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
+          <button id="playToggleBtn" class="icon-btn icon-btn--primary" title="Play / Pause"><i class="fa-solid fa-play"></i></button>
+          <button id="nextBtn" class="icon-btn" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
       </div>
 
-      <div class="source-bar">
-        <button id="loadSynthBtn" class="btn"><i class="fa-solid fa-wave-square"></i> 48kHz Synth Reference</button>
-        <button id="micBtn" class="btn"><i class="fa-solid fa-microphone"></i> Live Mic Monitor</button>
+      <div class="viz-stage">
+        <canvas id="visualizer"></canvas>
+        <span class="viz-badge" id="vizBadge">Bars</span>
+        <span class="viz-fps" id="vizFps">60 fps</span>
+      </div>
+
+      <div class="viz-controls">
+        <div class="viz-presets" id="vizPresets"></div>
+        <div class="viz-tweaks">
+          <label class="slider"><span><i class="fa-solid fa-bolt"></i> Sensitivity <b id="vSens">1.00×</b></span>
+            <input id="sSens" type="range" min="0.3" max="3" step="0.05" value="1">
+          </label>
+          <label class="slider"><span><i class="fa-solid fa-water"></i> Smoothing <b id="vSmooth">0.80</b></span>
+            <input id="sSmooth" type="range" min="0" max="0.95" step="0.01" value="0.8">
+          </label>
+          <label class="slider"><span><i class="fa-solid fa-swatchbook"></i> Palette</span>
+            <select id="vizPalette" class="select">
+              <option value="neon">Neon</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="forest">Forest</option>
+              <option value="fire">Fire</option>
+              <option value="ice">Ice</option>
+              <option value="cyber">Cyber</option>
+              <option value="mono">Mono</option>
+            </select>
+          </label>
+        </div>
+        <div class="viz-bg-row">
+          <select id="vizBgMode" class="select" style="flex:1 1 180px">
+            <option value="gradient:midnight">Midnight (gradient)</option>
+            <option value="gradient:aurora">Aurora (gradient)</option>
+            <option value="gradient:sunset">Sunset (gradient)</option>
+            <option value="gradient:ocean">Ocean (gradient)</option>
+            <option value="solid:#000000">Black (solid)</option>
+            <option value="solid:#0a0a14">Ink (solid)</option>
+            <option value="solid:#1e1b4b">Indigo (solid)</option>
+            <option value="transparent">Transparent</option>
+          </select>
+          <button id="vizBgImageBtn" class="btn" title="Upload custom background image"><i class="fa-solid fa-image"></i> Custom BG</button>
+          <input id="vizBgImageInput" type="file" accept="image/*" hidden>
+          <button id="vizScreenshotBtn" class="btn" title="Save current frame as PNG"><i class="fa-solid fa-camera"></i> Snapshot</button>
+          <select id="vizExportDur" class="select" style="width:auto;flex:0 0 auto">
+            <option value="5">5s</option>
+            <option value="10" selected>10s</option>
+            <option value="15">15s</option>
+            <option value="30">30s</option>
+          </select>
+          <button id="vizExportBtn" class="btn btn--primary"><i class="fa-solid fa-video"></i> Export Video</button>
+        </div>
+        <div class="viz-export-status" id="vizExportStatus">Ready to export WebM with audio.</div>
       </div>
 
       <div id="audioHost" class="audio-host"></div>
@@ -322,19 +380,19 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
       <div class="stream-engine">
         <div class="stream-engine__head">
           <h3><i class="fa-solid fa-satellite-dish"></i> Adaptive Stream Engine</h3>
-          <span class="hint">HLS.js · Shaka Player · Native</span>
+          <span class="hint">HLS.js · Shaka · Native</span>
         </div>
         <div class="stream-engine__row">
-          <input id="streamUrlInput" class="ai-tuner__input" type="text" placeholder="https://… .m3u8 (HLS) · .mpd (DASH) · direct stream URL" spellcheck="false" autocomplete="off">
-          <button id="loadStreamBtn" class="btn btn--primary"><i class="fa-solid fa-play"></i> Load Stream</button>
+          <input id="streamUrlInput" class="ai-tuner__input" type="text" placeholder="https://… .m3u8 · .mpd · direct stream URL" spellcheck="false" autocomplete="off">
+          <button id="loadStreamBtn" class="btn btn--primary"><i class="fa-solid fa-play"></i> Load</button>
         </div>
         <div class="stream-engine__demos">
           <button class="btn" data-demo-hls="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"><i class="fa-solid fa-flask"></i> Demo HLS</button>
           <button class="btn" data-demo-dash="https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd"><i class="fa-solid fa-flask"></i> Demo DASH</button>
           <button class="btn" data-demo-hls="https://test-streams.mux.dev/pts_shift/master.m3u8"><i class="fa-solid fa-flask"></i> Demo HLS 2</button>
-          <button class="btn" data-demo-dolby="https://dash.akamaized.net/akamai/test/caption_test/ElephantsDream/elephants_dream_480p_heaac5_1.mpd"><i class="fa-solid fa-volume-high"></i> 5.1 Spatial Demo</button>
+          <button class="btn" data-demo-dolby="https://dash.akamaized.net/akamai/test/caption_test/ElephantsDream/elephants_dream_480p_heaac5_1.mpd"><i class="fa-solid fa-volume-high"></i> 5.1 Demo</button>
         </div>
-        <div id="streamEngineStatus" class="stream-engine__status">Engine ready — URLs auto-detected by extension.</div>
+        <div id="streamEngineStatus" class="stream-engine__status">Engine ready — URLs auto-detected.</div>
       </div>
 
       <div class="enhancer">
@@ -362,44 +420,73 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
           <label class="slider"><span><i class="fa-solid fa-volume-high"></i> Make-up <b id="vMakeup">1.00</b>×</span><input id="sMakeup" type="range" min="0.5" max="2" step="0.01" value="1"></label>
         </div>
         <div class="toggles">
-          <label class="switch"><input id="atmosSpatialToggle" type="checkbox" checked><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label"><i class="fa-solid fa-headphones"></i> Dolby Atmos Spatial DSP <small>(binaural Haas cross-feed &amp; height stage)</small></span></label>
-          <label class="switch"><input id="adaptiveToggle" type="checkbox"><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label"><i class="fa-solid fa-brain"></i> Adaptive Spectral Balancing <small>(model-free, runs locally)</small></span></label>
+          <label class="switch"><input id="atmosSpatialToggle" type="checkbox" checked><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label"><i class="fa-solid fa-headphones"></i> Dolby Atmos Spatial DSP <small>(Haas cross-feed)</small></span></label>
+          <label class="switch"><input id="adaptiveToggle" type="checkbox"><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label"><i class="fa-solid fa-brain"></i> Adaptive Spectral Balancing</span></label>
         </div>
       </div>
 
+      <div class="recorder" id="recorderPanel">
+        <div class="recorder__head">
+          <h3><i class="fa-solid fa-circle-down"></i> Stream Capture → 320kbps MP3</h3>
+          <span class="hint">FFmpeg.wasm · LAME fallback</span>
+        </div>
+        <div class="recorder__row">
+          <select id="captureDuration" class="select" style="flex:0 0 auto">
+            <option value="10">10 seconds</option>
+            <option value="30" selected>30 seconds</option>
+            <option value="60">1 minute</option>
+            <option value="120">2 minutes</option>
+            <option value="300">5 minutes</option>
+            <option value="600">10 minutes</option>
+          </select>
+          <button id="captureBtn" class="btn btn--primary"><i class="fa-solid fa-record-vinyl"></i> Record &amp; Convert</button>
+          <button id="captureStopBtn" class="btn btn--danger" disabled><i class="fa-solid fa-stop"></i> Stop</button>
+        </div>
+        <div class="recorder__row" style="margin-top:8px">
+          <input id="fetchUrlInput" class="ai-tuner__input" type="text" placeholder="Direct audio URL (MP3 / AAC / OGG / FLAC / WAV) → 320kbps" spellcheck="false" autocomplete="off">
+          <button id="fetchConvertBtn" class="btn"><i class="fa-solid fa-cloud-arrow-down"></i> Fetch &amp; Convert</button>
+          <button id="useStationUrlBtn" class="btn" title="Use current station URL"><i class="fa-solid fa-satellite"></i> Use current</button>
+        </div>
+        <div class="recorder__row" style="margin-top:8px">
+          <button id="ffmpegWarmBtn" class="btn"><i class="fa-solid fa-fire"></i> Preload FFmpeg.wasm</button>
+          <span class="ffmpeg-hint" id="ffmpegStateHint">FFmpeg: not loaded</span>
+        </div>
+        <div class="recorder__status" id="recorderStatus">Ready.</div>
+        <div class="progress-bar" id="captureProgress" hidden><div class="progress-fill" id="captureProgressFill"></div></div>
+      </div>
+
       <div class="converter">
-        <div class="converter__head"><h3><i class="fa-solid fa-file-audio"></i> Local Track Converter &amp; Masterer</h3><span class="hint">100% client-side offline DSP</span></div>
+        <div class="converter__head"><h3><i class="fa-solid fa-file-audio"></i> Local Track Converter</h3><span class="hint">Offline DSP</span></div>
         <div class="converter__row">
-          <input id="fileInput" type="file" accept="audio/*,.flac,.ogg,.opus,.m4a,.aac,.wav,.mp3,.webm,.weba,.mka" hidden>
-          <button id="pickFile" class="btn"><i class="fa-solid fa-folder-open"></i> Choose audio file</button>
-          <select id="formatSelect" class="select">
+          <input id="fileInput" type="file" accept="audio/*" hidden>
+          <button id="pickFile" class="btn"><i class="fa-solid fa-folder-open"></i> Choose file</button>
+          <select id="formatSelect" class="select" style="flex:1 1 160px">
             <option value="wav16">WAV 16-bit / 48 kHz</option>
-            <option value="wav24">WAV 24-bit Hi-Res / 48 kHz</option>
+            <option value="wav24">WAV 24-bit / 48 kHz</option>
             <option value="mp3">MP3 320 kbps</option>
             <option value="opus">WebM / Opus 256 kbps</option>
             <option value="oggopus">OGG / Opus 256 kbps</option>
             <option value="m4a">M4A / AAC 256 kbps</option>
           </select>
-          <button id="convertBtn" class="btn btn--primary" disabled><i class="fa-solid fa-bolt"></i> Render &amp; Download Master</button>
+          <button id="convertBtn" class="btn btn--primary" disabled><i class="fa-solid fa-bolt"></i> Render &amp; Download</button>
         </div>
         <div class="converter__opts">
           <label><input id="normalizeCheck" type="checkbox" checked> -1.0 dBFS Peak Normalize</label>
-          <span class="hint">Supports FLAC, OGG, Opus, M4A, WAV, MP3, WebM &amp; more</span>
         </div>
         <div class="converter__status" id="convertStatus"></div>
         <div class="codec-grid" id="codecBadges"></div>
-        <div class="codec-grid" id="dolbyGrid" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--tw-border);">
+        <div class="codec-grid" id="dolbyGrid" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--tw-border)">
           <div class="codec-card"><div class="codec-card__name">Probing Dolby…</div><div class="codec-card__state"><i class="fa-solid fa-circle-notch fa-spin"></i></div></div>
         </div>
       </div>
 
       <div class="ai-tuner">
-        <div class="ai-tuner__head"><h3><i class="fa-solid fa-robot"></i>AI Acoustic Tuner</h3><span class="hint">5 free models · no API key</span></div>
-        <p class="ai-tuner__desc">Describe headphones, speakers, or mood. Tries free AI models first, then falls back to built-in acoustic heuristics.</p>
+        <div class="ai-tuner__head"><h3><i class="fa-solid fa-robot"></i> AI Acoustic Tuner</h3><span class="hint">5 free models · no key</span></div>
+        <p class="ai-tuner__desc">Describe headphones, speakers, or mood. Falls back to built-in heuristics if AI is unreachable.</p>
         <div class="ai-tuner__row">
-          <input id="aiTunerInput" class="ai-tuner__input" type="text" placeholder="e.g., Warm bass-heavy synthwave on earbuds or crisp podcast clarity…">
-          <button id="aiTuneCurrentBtn" class="btn"><i class="fa-solid fa-brain"></i> Auto-Tune Station</button>
-          <button id="aiTunePromptBtn" class="btn btn--primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Apply AI Curve</button>
+          <input id="aiTunerInput" class="ai-tuner__input" type="text" placeholder="e.g., warm bass-heavy synthwave on earbuds…">
+          <button id="aiTuneCurrentBtn" class="btn"><i class="fa-solid fa-brain"></i> Auto-Tune</button>
+          <button id="aiTunePromptBtn" class="btn btn--primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Apply</button>
         </div>
         <div class="ai-tuner__quick" id="aiQuickPresets">
           <button class="chip" data-ai="Bass-heavy EDM on club speakers">EDM Club</button>
@@ -422,9 +509,9 @@ img{max-width:100%;display:block}a{color:var(--p)}[hidden]{display:none!importan
 (function () {
 'use strict';
 
-/* ==========================================================================
+/* =====================================================================
    THEMES
-   ========================================================================== */
+   ===================================================================== */
 const THEME_DEFS = {
   corporate:{p:'#4b6bfb',s:'#7b92b2',a:'#67cba0',n:'#181a2a',b1:'#fff',b2:'#f2f2f2',b3:'#e6e6e6',bc:'#181a2a'},
   cupcake:{p:'#65c3c8',s:'#ef9fbc',a:'#eeaf3a',n:'#291334',b1:'#faf7f5',b2:'#f1ebe7',b3:'#e9e1db',bc:'#291334'},
@@ -457,30 +544,27 @@ const THEME_DEFS = {
   nord:{p:'#5e81ac',s:'#81a1c1',a:'#88c0d0',n:'#4c566a',b1:'#2e3440',b2:'#3b4252',b3:'#434c5e',bc:'#eceff4'},
   sunset:{p:'#ff865b',s:'#fd6f9c',a:'#b387fa',n:'#1b1626',b1:'#1a1626',b2:'#251e36',b3:'#302847',bc:'#e8e2f0'},
   caramellatte:{p:'#d18f50',s:'#8e6844',a:'#b25828',n:'#3b2c23',b1:'#f9f4ee',b2:'#f2eae0',b3:'#e9dfd2',bc:'#3b2c23'},
-  abyss:{p:'#0077b6',s:'#00b4d8',a:'#90e0ef',n:'#03045e',b1:'#03045e',b2:'#051a78',b3:'#0a2c8f',bc:'#caf0f8'},
-  silk:{p:'#ffc2d4',s:'#ffb5a7',a:'#fcd5ce',n:'#e8e8e4',b1:'#fff',b2:'#fef8f6',b3:'#faedea',bc:'#3b2d2d'}
+  abyss:{p:'#0077b6',s:'#00b4d8',a:'#90e0ef',n:'#03045e',b1:'#03045e',b2:'#051a78',b3:'#0a2c8f',bc:'#caf0f8'}
 };
 const THEME_NAMES = Object.keys(THEME_DEFS);
 let currentTheme = 'corporate';
-function contentOn(hex){if(!hex||hex[0]!=='#'||hex.length<7)return'#fff';const r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);const lum=(0.299*r+0.587*g+0.114*b)/255;return lum>0.55?'#0b0d12':'#fff'}
+function contentOn(hex){if(!hex||hex[0]!=='#'||hex.length<7)return'#fff';const r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);return ((0.299*r+0.587*g+0.114*b)/255)>0.55?'#0b0d12':'#fff'}
 (function(){const rules=[];for(const name of THEME_NAMES){const t=THEME_DEFS[name];rules.push(`[data-theme="${name}"]{--p:${t.p};--pc:${contentOn(t.p)};--s:${t.s};--sc:${contentOn(t.s)};--a:${t.a};--ac:${contentOn(t.a)};--n:${t.n};--nc:${contentOn(t.n)};--b1:${t.b1};--b2:${t.b2};--b3:${t.b3};--bc:${t.bc}}`)}const style=document.createElement('style');style.textContent=rules.join('\n');document.head.appendChild(style)})();
-function applySystemTheme(name){if(!THEME_DEFS[name])name='corporate';currentTheme=name;document.documentElement.setAttribute('data-theme',name);const root=document.documentElement;['p','pc','s','sc','a','ac','n','nc','b1','b2','b3','bc'].forEach(p=>root.style.removeProperty('--'+p));try{localStorage.setItem('hexaudio-theme',name);localStorage.removeItem('hexaudio-custom')}catch(_){}const t=THEME_DEFS[name];syncColorInputs(t);document.querySelectorAll('.theme-card').forEach(c=>c.classList.toggle('active',c.dataset.theme===name));const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t.p)}
-function applyCustomColors(colors){const root=document.documentElement;const map={p:'customPrimary',s:'customSecondary',a:'customAccent',n:'customNeutral',b1:'customBase100',b2:'customBase200',b3:'customBase300',bc:'customBaseContent'};for(const[prop,id]of Object.entries(map)){if(colors[prop])root.style.setProperty('--'+prop,colors[prop])}if(colors.p)root.style.setProperty('--pc',contentOn(colors.p));if(colors.s)root.style.setProperty('--sc',contentOn(colors.s));if(colors.a)root.style.setProperty('--ac',contentOn(colors.a));if(colors.n)root.style.setProperty('--nc',contentOn(colors.n));try{localStorage.setItem('hexaudio-custom',JSON.stringify(colors));localStorage.setItem('hexaudio-theme',currentTheme)}catch(_){}}
+function applySystemTheme(name){if(!THEME_DEFS[name])name='corporate';currentTheme=name;document.documentElement.setAttribute('data-theme',name);const root=document.documentElement;['p','pc','s','sc','a','ac','n','nc','b1','b2','b3','bc'].forEach(p=>root.style.removeProperty('--'+p));try{localStorage.setItem('hexaudio-theme',name);localStorage.removeItem('hexaudio-custom')}catch(_){}syncColorInputs(THEME_DEFS[name]);document.querySelectorAll('.theme-card').forEach(c=>c.classList.toggle('active',c.dataset.theme===name));const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',THEME_DEFS[name].p)}
+function applyCustomColors(colors){const root=document.documentElement;const map={p:'customPrimary',s:'customSecondary',a:'customAccent',n:'customNeutral',b1:'customBase100',b2:'customBase200',b3:'customBase300',bc:'customBaseContent'};for(const[prop,id]of Object.entries(map)){if(colors[prop])root.style.setProperty('--'+prop,colors[prop])}if(colors.p)root.style.setProperty('--pc',contentOn(colors.p));if(colors.s)root.style.setProperty('--sc',contentOn(colors.s));if(colors.a)root.style.setProperty('--ac',contentOn(colors.a));if(colors.n)root.style.setProperty('--nc',contentOn(colors.n));try{localStorage.setItem('hexaudio-custom',JSON.stringify(colors))}catch(_){}}
 function syncColorInputs(t){const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v};set('customPrimary',t.p);set('customSecondary',t.s);set('customAccent',t.a);set('customNeutral',t.n);set('customBase100',t.b1);set('customBase200',t.b2);set('customBase300',t.b3);set('customBaseContent',t.bc)}
 function buildThemeGallery(){const c=document.getElementById('themeGallery');if(!c)return;c.innerHTML='';for(const name of THEME_NAMES){const t=THEME_DEFS[name];const card=document.createElement('div');card.className='theme-card'+(name===currentTheme?' active':'');card.dataset.theme=name;const s=document.createElement('div');s.className='swatch-strip';[t.p,t.s,t.a,t.n].forEach(col=>{const sp=document.createElement('span');sp.style.background=col;s.appendChild(sp)});const l=document.createElement('span');l.className='theme-label';l.innerHTML='<span>'+name+'</span><span class="check">✓</span>';card.appendChild(s);card.appendChild(l);card.addEventListener('click',()=>applySystemTheme(name));c.appendChild(card)}}
 function loadTheme(){let s=null,c=null;try{s=localStorage.getItem('hexaudio-theme');c=localStorage.getItem('hexaudio-custom')}catch(_){}if(s&&THEME_DEFS[s]){currentTheme=s;document.documentElement.setAttribute('data-theme',s);syncColorInputs(THEME_DEFS[s])}else{document.documentElement.setAttribute('data-theme','corporate');syncColorInputs(THEME_DEFS.corporate)}if(c){try{applyCustomColors(JSON.parse(c))}catch(_){}}buildThemeGallery()}
-function openThemePanel(){document.getElementById('themePanel').classList.add('open')}
-function closeThemePanel(){document.getElementById('themePanel').classList.remove('open')}
-document.getElementById('themeBtn').addEventListener('click',openThemePanel);
-document.getElementById('closeThemePanel').addEventListener('click',closeThemePanel);
-document.getElementById('themePanel').addEventListener('click',e=>{if(e.target.id==='themePanel')closeThemePanel()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeThemePanel()});
-document.getElementById('applyCustom').addEventListener('click',()=>{applyCustomColors({p:document.getElementById('customPrimary').value,s:document.getElementById('customSecondary').value,a:document.getElementById('customAccent').value,n:document.getElementById('customNeutral').value,b1:document.getElementById('customBase100').value,b2:document.getElementById('customBase200').value,b3:document.getElementById('customBase300').value,bc:document.getElementById('customBaseContent').value});closeThemePanel()});
+document.getElementById('themeBtn').addEventListener('click',()=>document.getElementById('themePanel').classList.add('open'));
+document.getElementById('closeThemePanel').addEventListener('click',()=>document.getElementById('themePanel').classList.remove('open'));
+document.getElementById('themePanel').addEventListener('click',e=>{if(e.target.id==='themePanel')document.getElementById('themePanel').classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('themePanel').classList.remove('open')});
+document.getElementById('applyCustom').addEventListener('click',()=>{applyCustomColors({p:document.getElementById('customPrimary').value,s:document.getElementById('customSecondary').value,a:document.getElementById('customAccent').value,n:document.getElementById('customNeutral').value,b1:document.getElementById('customBase100').value,b2:document.getElementById('customBase200').value,b3:document.getElementById('customBase300').value,bc:document.getElementById('customBaseContent').value});document.getElementById('themePanel').classList.remove('open')});
 document.getElementById('resetTheme').addEventListener('click',()=>{const root=document.documentElement;['p','pc','s','sc','a','ac','n','nc','b1','b2','b3','bc'].forEach(p=>root.style.removeProperty('--'+p));try{localStorage.removeItem('hexaudio-custom');localStorage.removeItem('hexaudio-theme')}catch(_){}applySystemTheme('corporate')});
 
-/* ==========================================================================
+/* =====================================================================
    AUDIO DSP
-   ========================================================================== */
+   ===================================================================== */
 const PRESETS = {
   flat:{bass:0,mud:0,presence:0,treble:0,comp:false,makeup:1.00,threshold:-24,ratio:1,knee:30,atmos:0},
   music:{bass:6,mud:-2,presence:3,treble:4,comp:true,makeup:1.05,threshold:-24,ratio:12,knee:30,atmos:0.35},
@@ -511,7 +595,7 @@ function createEnhanceGraph(ctx,settings){
   n.comp=ctx.createDynamicsCompressor();n.comp.knee.value=30;n.comp.attack.value=0.003;n.comp.release.value=0.25;
   n.limiter=ctx.createDynamicsCompressor();n.limiter.threshold.value=-2;n.limiter.knee.value=0;n.limiter.ratio.value=20;n.limiter.attack.value=0.002;n.limiter.release.value=0.10;
   n.makeup=ctx.createGain();n.makeup.gain.value=1;
-  n.analyser=ctx.createAnalyser();n.analyser.fftSize=2048;n.analyser.smoothingTimeConstant=0.82;
+  n.analyser=ctx.createAnalyser();n.analyser.fftSize=2048;n.analyser.smoothingTimeConstant=0.8;
   n.highpass.connect(n.bass);n.bass.connect(n.mud);n.mud.connect(n.presence);n.presence.connect(n.treble);
   n.treble.connect(n.spatialDry);n.spatialDry.connect(n.spatialWidthBus);
   n.treble.connect(n.spatialSplitter);
@@ -538,10 +622,10 @@ function applySettingsToNodes(n,ctx,s,ramp){
 
 class AudioEnhancer {
   constructor(){
-    this.ctx=null;this.source=null;this.micStream=null;this.micSource=null;this.isMicActive=false;
-    this.bound=false;this.enabled=false;this.preset='music';this.nodes=null;
-    this._userOverrides={};this._atmosEnabled=true;this._adaptiveRAF=null;this._adaptiveOn=false;
-    this._lastAdapt=0;this._adaptBass=0;this._adaptTreble=0;this._timeBuf=null;this._freqFloatBuf=null;this._freqByteBuf=null;this._waveByteBuf=null;
+    this.ctx=null;this.source=null;this.bound=false;this.enabled=false;this.preset='music';this.nodes=null;
+    this._userOverrides={};this._atmosEnabled=true;this._adaptiveRAF=null;
+    this._lastAdapt=0;this._adaptBass=0;this._adaptTreble=0;this._freqFloatBuf=null;
+    this._exportDest=null;
   }
   _effectiveSettings(on){
     if(!on)return Object.assign({},PRESETS.flat,{atmosEnabled:false,atmos:0});
@@ -561,15 +645,6 @@ class AudioEnhancer {
     this.bound=true;
   }
   release(){if(this.source){try{this.source.disconnect()}catch(_){}this.source=null}this.bound=false}
-  async toggleMicrophone(){
-    await this.ensureContext();
-    if(this.isMicActive){if(this.micSource){try{this.micSource.disconnect()}catch(_){}this.micSource=null}if(this.micStream){this.micStream.getTracks().forEach(t=>t.stop());this.micStream=null}this.isMicActive=false;return false}
-    this.micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    this.micSource=this.ctx.createMediaStreamSource(this.micStream);
-    this.micSource.connect(this.nodes.highpass);
-    this.isMicActive=true;
-    return true;
-  }
   async setEnabled(on,mediaElement){
     this.enabled=!!on;await this.ensureContext();
     if(on&&mediaElement&&!this.bound)await this.bind(mediaElement);
@@ -580,19 +655,26 @@ class AudioEnhancer {
   setAtmosEnabled(on){this._atmosEnabled=!!on;if(this.enabled&&this.nodes&&this.ctx)applySettingsToNodes(this.nodes,this.ctx,this._effectiveSettings(true),0.06)}
   setPreset(name){if(!PRESETS[name])return;this.preset=name;if(this.enabled&&this.nodes&&this.ctx)applySettingsToNodes(this.nodes,this.ctx,this._effectiveSettings(true),0.06)}
   setOverrides(partial){this._userOverrides=Object.assign({},this._userOverrides,partial);if(this.enabled&&this.nodes&&this.ctx)applySettingsToNodes(this.nodes,this.ctx,this._effectiveSettings(true),0.04)}
-  getLevels(){if(!this.nodes||!this.nodes.analyser)return{rms:0,peak:0};const a=this.nodes.analyser;if(!this._timeBuf||this._timeBuf.length!==a.fftSize)this._timeBuf=new Float32Array(a.fftSize);a.getFloatTimeDomainData(this._timeBuf);let sum=0,peak=0;for(let i=0;i<this._timeBuf.length;i++){const v=this._timeBuf[i];sum+=v*v;const av=v<0?-v:v;if(av>peak)peak=av}return{rms:Math.sqrt(sum/this._timeBuf.length),peak}}
-  getSpectrum(){if(!this.nodes||!this.nodes.analyser)return null;const a=this.nodes.analyser;if(!this._freqByteBuf||this._freqByteBuf.length!==a.frequencyBinCount)this._freqByteBuf=new Uint8Array(a.frequencyBinCount);a.getByteFrequencyData(this._freqByteBuf);return this._freqByteBuf}
-  getWaveform(){if(!this.nodes||!this.nodes.analyser)return null;const a=this.nodes.analyser;if(!this._waveByteBuf||this._waveByteBuf.length!==a.fftSize)this._waveByteBuf=new Uint8Array(a.fftSize);a.getByteTimeDomainData(this._waveByteBuf);return this._waveByteBuf}
-  _bandEnergy(loHz,hiHz){const f=this._freqFloatBuf;if(!f)return 0;const ny=this.ctx.sampleRate/2;const bin=ny/f.length;const s=Math.max(0,Math.floor(loHz/bin));const e=Math.min(f.length,Math.ceil(hiHz/bin));let sum=0,c=0;for(let i=s;i<e;i++){sum+=Math.pow(10,f[i]/20);c++}return c?sum/c:0}
-  setAdaptive(on){this._adaptiveOn=!!on;if(on)this._startAdaptive();else this._stopAdaptive()}
-  _startAdaptive(){if(this._adaptiveRAF)return;const tick=()=>{this._adaptiveRAF=requestAnimationFrame(tick);const now=performance.now();if(now-this._lastAdapt<100)return;this._lastAdapt=now;this._applyAdaptive()};this._adaptiveRAF=requestAnimationFrame(tick)}
-  _stopAdaptive(){if(this._adaptiveRAF)cancelAnimationFrame(this._adaptiveRAF);this._adaptiveRAF=null;this._adaptBass=0;this._adaptTreble=0;if(this.enabled&&this.nodes&&this.ctx)applySettingsToNodes(this.nodes,this.ctx,this._effectiveSettings(true),0.2)}
+  getLevels(){if(!this.nodes||!this.nodes.analyser)return{rms:0,peak:0};const a=this.nodes.analyser;const buf=new Float32Array(a.fftSize);a.getFloatTimeDomainData(buf);let sum=0,peak=0;for(let i=0;i<buf.length;i++){const v=buf[i];sum+=v*v;const av=v<0?-v:v;if(av>peak)peak=av}return{rms:Math.sqrt(sum/buf.length),peak}}
+  getAnalyser(){return this.nodes?this.nodes.analyser:null}
+  getExportStream(){
+    if(!this.ctx||!this.nodes)return null;
+    if(!this._exportDest){this._exportDest=this.ctx.createMediaStreamDestination();this.nodes.analyser.connect(this._exportDest)}
+    return this._exportDest.stream;
+  }
+  setAdaptive(on){
+    if(!on){if(this._adaptiveRAF){cancelAnimationFrame(this._adaptiveRAF);this._adaptiveRAF=null}this._adaptBass=0;this._adaptTreble=0;if(this.enabled&&this.nodes&&this.ctx)applySettingsToNodes(this.nodes,this.ctx,this._effectiveSettings(true),0.2);return}
+    if(this._adaptiveRAF)return;
+    const tick=()=>{this._adaptiveRAF=requestAnimationFrame(tick);const now=performance.now();if(now-this._lastAdapt<100)return;this._lastAdapt=now;this._applyAdaptive()};
+    this._adaptiveRAF=requestAnimationFrame(tick);
+  }
   _applyAdaptive(){
-    if(!this.enabled||(!this.bound&&!this.isMicActive)||!this.nodes)return;
+    if(!this.enabled||!this.bound||!this.nodes)return;
     const a=this.nodes.analyser;
     if(!this._freqFloatBuf||this._freqFloatBuf.length!==a.frequencyBinCount)this._freqFloatBuf=new Float32Array(a.frequencyBinCount);
     a.getFloatFrequencyData(this._freqFloatBuf);
-    const low=this._bandEnergy(20,200),mid=this._bandEnergy(200,2000),high=this._bandEnergy(2000,16000);
+    const band=(lo,hi)=>{const ny=this.ctx.sampleRate/2,bin=ny/this._freqFloatBuf.length;const s=Math.max(0,Math.floor(lo/bin)),e=Math.min(this._freqFloatBuf.length,Math.ceil(hi/bin));let sum=0,c=0;for(let i=s;i<e;i++){sum+=Math.pow(10,this._freqFloatBuf[i]/20);c++}return c?sum/c:0};
+    const low=band(20,200),mid=band(200,2000),high=band(2000,16000);
     const total=low+mid+high;if(total<1e-9)return;
     const lowRatio=low/total,highRatio=high/total;
     this._adaptBass=lerp(this._adaptBass,clamp((0.35-lowRatio)*45,-4,5),0.15);
@@ -604,31 +686,489 @@ class AudioEnhancer {
   }
 }
 
-function generateReferenceTrackBuffer(durationSec=8){
-  const sr=48000,length=sr*durationSec;
-  const OfflineCtx=window.OfflineAudioContext||window.webkitOfflineAudioContext;
-  const offline=new OfflineCtx(2,length,sr);
-  const chords=[[130.81,196.00,246.94,293.66,329.63],[110.00,164.81,196.00,246.94,261.63],[87.31,130.81,174.61,220.00,261.63],[98.00,146.83,196.00,246.94,293.66]];
-  chords.forEach((chord,idx)=>{
-    const startTime=idx*2,endTime=startTime+1.95;
-    chord.forEach((freq,vi)=>{
-      const osc=offline.createOscillator(),panner=offline.createStereoPanner(),env=offline.createGain();
-      osc.type=vi===0?'triangle':'sine';
-      osc.frequency.setValueAtTime(freq,startTime);
-      panner.pan.setValueAtTime(((vi/(chord.length-1))*1.6)-0.8,startTime);
-      env.gain.setValueAtTime(0.0001,startTime);
-      env.gain.exponentialRampToValueAtTime(vi===0?0.22:0.09,startTime+0.15);
-      env.gain.exponentialRampToValueAtTime(0.0001,endTime);
-      osc.connect(panner).connect(env).connect(offline.destination);
-      osc.start(startTime);osc.stop(endTime);
-    });
-  });
-  return offline.startRendering();
+/* =====================================================================
+   VISUALIZER — 18 presets, vizz.fm-style
+   ===================================================================== */
+const PALETTES = {
+  neon:    (t)=>`hsl(${(200+t*160)%360}, 90%, 60%)`,
+  sunset:  (t)=>`hsl(${10+t*50}, 90%, 55%)`,
+  ocean:   (t)=>`hsl(${185+t*50}, 85%, 55%)`,
+  forest:  (t)=>`hsl(${100+t*60}, 75%, 50%)`,
+  fire:    (t)=>`hsl(${0+t*55}, 95%, 55%)`,
+  ice:     (t)=>`hsl(${180+t*40}, 80%, 65%)`,
+  cyber:   (t)=>`hsl(${280+t*90}, 95%, 60%)`,
+  mono:    (t)=>`hsl(0, 0%, ${25+t*70}%)`
+};
+const BG_GRADIENTS = {
+  midnight: ['#050816','#0a0f2a','#15193d'],
+  aurora:   ['#04222a','#0d4a5c','#1e8071'],
+  sunset:   ['#1a0b1f','#4a1533','#8f2a41'],
+  ocean:    ['#021a2e','#0a3a5c','#1a5a8a']
+};
+
+// compact numeric helpers
+const TAU = Math.PI * 2;
+const avg = (data, lo, hi) => { let s=0, n=0; for(let i=lo;i<hi&&i<data.length;i++){s+=data[i];n++} return n?s/n:0; };
+const peakOf = (data, lo, hi) => { let p=0; for(let i=lo;i<hi&&i<data.length;i++) if(data[i]>p) p=data[i]; return p; };
+
+const VIZ_PRESETS = [
+  {id:'bars',        name:'Bars',        icon:'fa-chart-simple'},
+  {id:'mirrorBars',  name:'Mirror',      icon:'fa-align-center'},
+  {id:'waveform',    name:'Waveform',    icon:'fa-waveform'},
+  {id:'radialBars',  name:'Radial',      icon:'fa-circle-notch'},
+  {id:'radialWave',  name:'Radial Wave', icon:'fa-compact-disc'},
+  {id:'particles',   name:'Particles',   icon:'fa-atom'},
+  {id:'rings',       name:'Rings',       icon:'fa-circle'},
+  {id:'tunnel',      name:'Tunnel',      icon:'fa-bullseye'},
+  {id:'spectrogram', name:'Spectrogram', icon:'fa-chart-area'},
+  {id:'oscilloscope',name:'Oscilloscope',icon:'fa-wave-square'},
+  {id:'matrix',      name:'Matrix',      icon:'fa-code'},
+  {id:'blob',        name:'Blob',        icon:'fa-droplet'},
+  {id:'starfield',   name:'Starfield',   icon:'fa-meteor'},
+  {id:'grid',        name:'Grid',        icon:'fa-border-all'},
+  {id:'fire',        name:'Fire',        icon:'fa-fire'},
+  {id:'plasma',      name:'Plasma',      icon:'fa-sun'},
+  {id:'waves',       name:'Waves',       icon:'fa-water'},
+  {id:'pulse',       name:'Pulse',       icon:'fa-heart-pulse'}
+];
+
+const draw = {
+  bars({ctx,w,h,freq,palette,sens}){
+    const N = 72, step = Math.floor(freq.length/N), bw = w/N;
+    for(let i=0;i<N;i++){
+      const v = clamp(avg(freq,i*step,(i+1)*step)/255*sens,0,1);
+      const bh = v*h*0.92;
+      const g = ctx.createLinearGradient(0,h-bh,0,h);
+      g.addColorStop(0, palette(i/N));
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(i*bw+1, h-bh, bw-2, bh);
+    }
+  },
+  mirrorBars({ctx,w,h,freq,palette,sens}){
+    const N = 36, step = Math.floor(freq.length/N), bw = w/(N*2), cx = w/2;
+    for(let i=0;i<N;i++){
+      const v = clamp(avg(freq,i*step,(i+1)*step)/255*sens,0,1);
+      const bh = v*h*0.92;
+      ctx.fillStyle = palette(i/N);
+      ctx.fillRect(cx + i*bw, h-bh, bw-1, bh);
+      ctx.fillRect(cx - (i+1)*bw, h-bh, bw-1, bh);
+    }
+    ctx.strokeStyle = palette(0.5);
+    ctx.lineWidth = 2;
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
+  },
+  waveform({ctx,w,h,wave,palette,sens}){
+    ctx.strokeStyle = palette(0.5);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const n = wave.length;
+    for(let i=0;i<n;i++){
+      const x = i/(n-1)*w;
+      const y = h/2 + wave[i]*sens*h*0.42;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // glow
+    ctx.strokeStyle = palette(0.7);
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 6;ctx.stroke();ctx.globalAlpha = 1;
+  },
+  radialBars({ctx,w,h,freq,palette,sens}){
+    const cx=w/2, cy=h/2, R=Math.min(w,h)*0.42;
+    const N=96, step=Math.floor(freq.length/N);
+    for(let i=0;i<N;i++){
+      const v = clamp(avg(freq,i*step,(i+1)*step)/255*sens,0,1);
+      const len = v*R*0.7;
+      const ang = (i/N)*TAU - Math.PI/2;
+      const x1 = cx + Math.cos(ang)*(R*0.3);
+      const y1 = cy + Math.sin(ang)*(R*0.3);
+      const x2 = cx + Math.cos(ang)*(R*0.3 + len);
+      const y2 = cy + Math.sin(ang)*(R*0.3 + len);
+      ctx.strokeStyle = palette(i/N);
+      ctx.lineWidth = Math.max(2, w/N*0.9);
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    }
+  },
+  radialWave({ctx,w,h,wave,palette,sens}){
+    const cx=w/2, cy=h/2, R=Math.min(w,h)*0.3;
+    const n = wave.length;
+    ctx.strokeStyle = palette(0.5);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const ang = (i/n)*TAU - Math.PI/2;
+      const r = R + wave[i]*sens*R*0.9;
+      const x = cx + Math.cos(ang)*r;
+      const y = cy + Math.sin(ang)*r;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.closePath();ctx.stroke();
+    // mirror ring
+    ctx.strokeStyle = palette(0.8);ctx.globalAlpha = 0.4;ctx.lineWidth = 5;ctx.stroke();ctx.globalAlpha = 1;
+  },
+  particles({ctx,w,h,freq,wave,palette,sens,st}){
+    if(!st.particles) st.particles = [];
+    const bass = avg(freq,0,10)/255 * sens;
+    const spawn = Math.floor(bass*8)+1;
+    for(let i=0;i<spawn;i++){
+      const ang = Math.random()*TAU;
+      const spd = 1 + bass*4;
+      st.particles.push({x:w/2,y:h/2,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:1,hue:Math.random()});
+    }
+    for(let i=st.particles.length-1;i>=0;i--){
+      const p = st.particles[i];
+      p.x += p.vx*3; p.y += p.vy*3; p.life -= 0.015;
+      if(p.life<=0){st.particles.splice(i,1);continue}
+      ctx.fillStyle = palette(p.hue);
+      ctx.globalAlpha = p.life;
+      ctx.beginPath();ctx.arc(p.x,p.y, 1 + p.life*3, 0, TAU);ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if(st.particles.length > 800) st.particles.splice(0, st.particles.length-800);
+  },
+  rings({ctx,w,h,freq,palette,sens,st}){
+    if(!st.rings) st.rings = [];
+    const bass = avg(freq,0,10)/255*sens;
+    if(Math.random() < bass*0.5) st.rings.push({r:0,life:1,hue:Math.random()});
+    for(let i=st.rings.length-1;i>=0;i--){
+      const r = st.rings[i];
+      r.r += 4 + bass*8; r.life -= 0.012;
+      if(r.life<=0){st.rings.splice(i,1);continue}
+      ctx.strokeStyle = palette(r.hue);
+      ctx.globalAlpha = r.life; ctx.lineWidth = 2+r.life*3;
+      ctx.beginPath();ctx.arc(w/2,h/2,r.r,0,TAU);ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  },
+  tunnel({ctx,w,h,freq,palette,sens,t}){
+    const cx=w/2, cy=h/2, bass = avg(freq,0,10)/255*sens;
+    const N = 20;
+    for(let i=0;i<N;i++){
+      const k = ((t*0.3 + i/N) % 1);
+      const r = k * Math.min(w,h) * 0.7 * (1+bass*0.4);
+      ctx.strokeStyle = palette(i/N);
+      ctx.globalAlpha = 1-k; ctx.lineWidth = 2+k*3;
+      ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  },
+  spectrogram({ctx,w,h,freq,palette,sens,st}){
+    // shift left
+    if(!st.spectroInit){
+      ctx.fillStyle = '#000';ctx.fillRect(0,0,w,h);
+      st.spectroInit = true;
+    }
+    const img = ctx.getImageData(1, 0, w-1, h);
+    ctx.putImageData(img, 0, 0);
+    // new column
+    const N = h, step = Math.floor(freq.length/N);
+    for(let y=0;y<N;y++){
+      const v = clamp(avg(freq,y*step,(y+1)*step)/255*sens,0,1);
+      const c = palette(v);
+      ctx.fillStyle = c;
+      ctx.globalAlpha = v;
+      ctx.fillRect(w-1, h-1-y, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+  },
+  oscilloscope({ctx,w,h,wave,palette,sens}){
+    // grid
+    ctx.strokeStyle = palette(0.2);ctx.globalAlpha = 0.15;
+    ctx.lineWidth = 1;
+    for(let i=1;i<8;i++){const x=i/8*w;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+    for(let i=1;i<8;i++){const y=i/8*h;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+    ctx.globalAlpha = 1;
+    // wave
+    ctx.strokeStyle = palette(0.4);ctx.lineWidth = 2;ctx.shadowColor = palette(0.4);ctx.shadowBlur = 12;
+    ctx.beginPath();
+    const n=wave.length;
+    for(let i=0;i<n;i++){const x=i/(n-1)*w;const y=h/2 - wave[i]*sens*h*0.4;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  },
+  matrix({ctx,w,h,freq,palette,sens,st}){
+    if(!st.drops){
+      const cols = Math.floor(w/20);
+      st.drops = Array.from({length:cols},()=>({y:Math.random()*h, spd:2+Math.random()*4}));
+      ctx.fillStyle='#000';ctx.fillRect(0,0,w,h);
+    }
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';ctx.fillRect(0,0,w,h);
+    const bass = avg(freq,0,10)/255*sens;
+    ctx.font = '16px monospace';
+    for(let i=0;i<st.drops.length;i++){
+      const d = st.drops[i];
+      const x = i*20;
+      ctx.fillStyle = palette(Math.random());
+      ctx.fillText(String.fromCharCode(0x30A0 + Math.random()*96|0), x, d.y);
+      d.y += d.spd * (1+bass*2);
+      if(d.y > h){ d.y = 0; d.spd = 2+Math.random()*4; }
+    }
+  },
+  blob({ctx,w,h,freq,palette,sens,t}){
+    const cx=w/2,cy=h/2,R=Math.min(w,h)*0.32;
+    const N=64, step=Math.floor(freq.length/N);
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const ang=(i/N)*TAU;
+      const v = clamp(avg(freq,i*step,(i+1)*step)/255*sens,0,1);
+      const r = R*(0.8 + v*0.6);
+      const x = cx + Math.cos(ang)*r + Math.sin(t*2+i*0.2)*8;
+      const y = cy + Math.sin(ang)*r + Math.cos(t*2+i*0.2)*8;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.5);
+    g.addColorStop(0,palette(0.6));g.addColorStop(1,palette(0.1));
+    ctx.fillStyle = g;ctx.fill();
+    ctx.strokeStyle = palette(0.9);ctx.lineWidth = 2;ctx.stroke();
+  },
+  starfield({ctx,w,h,freq,palette,sens,st}){
+    if(!st.stars) st.stars = Array.from({length:200},()=>({x:Math.random()*w-w/2,y:Math.random()*h-h/2,z:Math.random()*w,o:Math.random()}));
+    const bass = avg(freq,0,10)/255*sens;
+    const cx=w/2, cy=h/2;
+    for(const s of st.stars){
+      const k = 128/(s.z||1);
+      const x = cx + s.x*k;
+      const y = cy + s.y*k;
+      if(x<0||x>w||y<0||y>h){s.x=(Math.random()-0.5)*w;s.y=(Math.random()-0.5)*h;s.z=w;s.o=Math.random();continue}
+      s.z -= 2 + bass*8;
+      const size = Math.max(0.5, (1 - s.z/w) * 3);
+      ctx.fillStyle = palette(s.o);
+      ctx.globalAlpha = 1 - s.z/w;
+      ctx.beginPath();ctx.arc(x,y,size,0,TAU);ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  },
+  grid({ctx,w,h,freq,palette,sens,t}){
+    const bass = avg(freq,0,10)/255*sens;
+    const N=14;
+    ctx.strokeStyle = palette(0.4);
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.7;
+    for(let i=0;i<=N;i++){
+      const y = h - Math.pow(i/N, 2.2)*h*0.85;
+      const wave = Math.sin(t*2+i*0.6)*bass*30;
+      ctx.beginPath();ctx.moveTo(0, y+wave);ctx.lineTo(w, y+wave);ctx.stroke();
+    }
+    for(let i=0;i<=N;i++){
+      const x = i/N*w;
+      const persp = (i-N/2)/N;
+      const y0 = h*0.15;
+      ctx.beginPath();ctx.moveTo(w/2 + persp*w*0.5, y0);ctx.lineTo(w/2 + persp*w*0.5, h);ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  },
+  fire({ctx,w,h,freq,palette,sens,st}){
+    if(!st.flames) st.flames = [];
+    const bass = avg(freq,0,10)/255*sens;
+    const spawn = 20 + Math.floor(bass*40);
+    for(let i=0;i<spawn;i++){
+      st.flames.push({
+        x:Math.random()*w,
+        y:h,
+        vx:(Math.random()-0.5)*2,
+        vy:-3-Math.random()*4-bass*4,
+        life:1,
+        size:6+Math.random()*10
+      });
+    }
+    for(let i=st.flames.length-1;i>=0;i--){
+      const f = st.flames[i];
+      f.x += f.vx; f.y += f.vy; f.vy += 0.1; f.life -= 0.025;
+      if(f.life<=0){st.flames.splice(i,1);continue}
+      const c = palette(clamp(1-f.life, 0, 1));
+      ctx.fillStyle = c;
+      ctx.globalAlpha = f.life;
+      ctx.beginPath();ctx.arc(f.x, f.y, f.size*f.life, 0, TAU);ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if(st.flames.length>600) st.flames.splice(0, st.flames.length-600);
+  },
+  plasma({ctx,w,h,freq,palette,sens,t}){
+    const bass = avg(freq,0,10)/255*sens;
+    const mid = avg(freq,20,60)/255*sens;
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    for(let y=0;y<h;y+=2){
+      for(let x=0;x<w;x+=2){
+        const v = Math.sin(x*0.02+t*2)*Math.cos(y*0.02-t*1.5) + Math.sin((x+y)*0.01+t);
+        const hue = ((v+2)/4 + bass*0.5) * 360;
+        const [r,g,b] = hslToRgb(hue, 0.85, 0.5 + mid*0.15);
+        const i0 = (y*w+x)*4;
+        d[i0]=r; d[i0+1]=g; d[i0+2]=b; d[i0+3]=255;
+        if(x+1<w){const i1=(y*w+x+1)*4;d[i1]=r;d[i1+1]=g;d[i1+2]=b;d[i1+3]=255}
+        if(y+1<h){const i2=((y+1)*w+x)*4;d[i2]=r;d[i2+1]=g;d[i2+2]=b;d[i2+3]=255}
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  },
+  waves({ctx,w,h,freq,palette,sens,t}){
+    const bands = 6;
+    for(let b=0;b<bands;b++){
+      const bandV = avg(freq, b*20, (b+1)*20)/255*sens;
+      ctx.strokeStyle = palette(b/bands);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=4){
+        const y = h/2 + Math.sin(x*0.01 + t*2 + b)*bandV*h*0.3;
+        if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+  },
+  pulse({ctx,w,h,freq,palette,sens,st}){
+    const bass = avg(freq,0,10)/255*sens;
+    const mid = avg(freq,20,50)/255*sens;
+    if(!st.pulses) st.pulses = [];
+    if(Math.random() < bass*0.4) st.pulses.push({r:0,life:1});
+    for(let i=st.pulses.length-1;i>=0;i--){
+      const p=st.pulses[i];
+      p.r += 3+bass*10; p.life -= 0.02;
+      if(p.life<=0){st.pulses.splice(i,1);continue}
+      ctx.strokeStyle = palette(p.life);
+      ctx.lineWidth = 2+p.life*4;
+      ctx.globalAlpha = p.life;
+      ctx.beginPath();ctx.arc(w/2,h/2,p.r,0,TAU);ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // center orb
+    const R = Math.min(w,h)*0.12*(1+bass*0.6);
+    const g = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,R);
+    g.addColorStop(0, palette(0.8));g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();ctx.arc(w/2,h/2,R,0,TAU);ctx.fill();
+  }
+};
+
+function hslToRgb(h,s,l){h=((h%360)+360)%360/360;const q=l<0.5?l*(1+s):l+s-l*s;const p=2*l-q;const f=(t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p};return [Math.round(f(h+1/3)*255),Math.round(f(h)*255),Math.round(f(h-1/3)*255)]}
+
+class Viz {
+  constructor(canvas, getAnalyser){
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', {alpha: true});
+    this.getAnalyser = getAnalyser;
+    this.preset = 'bars';
+    this.sensitivity = 1;
+    this.palette = PALETTES.neon;
+    this.bg = {type:'gradient', key:'midnight'};
+    this.bgImage = null;
+    this.freq = null;
+    this.wave = null;
+    this.state = {};
+    this.raf = null;
+    this.lastT = 0;
+    this.fps = 60;
+    this._fpsCounter = {t:0,n:0};
+    this._resize();
+    const ro = window.ResizeObserver ? new ResizeObserver(()=>this._resize()) : null;
+    if(ro) ro.observe(canvas);
+    window.addEventListener('orientationchange',()=>setTimeout(()=>this._resize(),100));
+  }
+  _resize(){
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    const W = Math.max(320, Math.floor(rect.width*dpr));
+    const H = Math.max(200, Math.floor(rect.height*dpr));
+    if(this.canvas.width !== W || this.canvas.height !== H){
+      this.canvas.width = W; this.canvas.height = H;
+      this.state = {};
+    }
+  }
+  setPreset(name){if(draw[name]){this.preset=name;this.state={}}}
+  setSensitivity(v){this.sensitivity = clamp(v, 0.1, 5)}
+  setPalette(name){this.palette = PALETTES[name] || PALETTES.neon}
+  setSmoothing(v){const a = this.getAnalyser(); if(a) a.smoothingTimeConstant = clamp(v, 0, 0.95)}
+  setBackground(mode, img){
+    if(mode.startsWith('gradient:')) this.bg = {type:'gradient', key: mode.split(':')[1]};
+    else if(mode.startsWith('solid:')) this.bg = {type:'solid', color: mode.split(':')[1]};
+    else if(mode === 'transparent') this.bg = {type:'transparent'};
+    else if(mode === 'image') this.bg = {type:'image'};
+    if(img !== undefined) this.bgImage = img;
+  }
+  start(){ if(!this.raf) this._loop(); }
+  stop(){ if(this.raf){ cancelAnimationFrame(this.raf); this.raf = null; } }
+  _loop(){
+    this.raf = requestAnimationFrame(()=>this._loop());
+    const now = performance.now();
+    const dt = now - this.lastT;
+    this.lastT = now;
+    if(dt > 0){ this.fps = Math.round(1000/dt); }
+    // fps readout throttled
+    this._fpsCounter.n++;
+    if(now - this._fpsCounter.t > 500){
+      const el = document.getElementById('vizFps');
+      if(el) el.textContent = this.fps + ' fps';
+      this._fpsCounter.t = now; this._fpsCounter.n = 0;
+    }
+    this._draw();
+  }
+  _draw(){
+    const ctx = this.ctx, w = this.canvas.width, h = this.canvas.height;
+    // Background
+    if(this.bg.type === 'transparent'){ ctx.clearRect(0,0,w,h); }
+    else if(this.bg.type === 'solid'){ ctx.fillStyle = this.bg.color; ctx.fillRect(0,0,w,h); }
+    else if(this.bg.type === 'gradient'){
+      const stops = BG_GRADIENTS[this.bg.key] || BG_GRADIENTS.midnight;
+      const g = ctx.createLinearGradient(0,0,w,h);
+      stops.forEach((c,i)=>g.addColorStop(i/(stops.length-1), c));
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    }
+    else if(this.bg.type === 'image'){
+      if(this.bgImage){ ctx.drawImage(this.bgImage, 0, 0, w, h); }
+      else { ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h); }
+    }
+    // Data
+    const analyser = this.getAnalyser();
+    const audioEl = state.audioEl;
+    let freq = null, wave = null;
+    const isPlaying = audioEl && !audioEl.paused;
+    if(analyser && isPlaying){
+      if(!this.freq || this.freq.length !== analyser.frequencyBinCount) this.freq = new Uint8Array(analyser.frequencyBinCount);
+      if(!this.wave || this.wave.length !== analyser.fftSize) this.wave = new Float32Array(analyser.fftSize);
+      analyser.getByteFrequencyData(this.freq);
+      analyser.getFloatTimeDomainData(this.wave);
+      freq = this.freq; wave = this.wave;
+    }
+    if(!freq){
+      // Idle animation
+      this._drawIdle(ctx, w, h);
+      return;
+    }
+    const fn = draw[this.preset];
+    if(fn) fn({ctx, w, h, freq, wave, palette: this.palette, sens: this.sensitivity, st: this.state, t: performance.now()/1000});
+    else this._drawIdle(ctx, w, h);
+  }
+  _drawIdle(ctx, w, h){
+    const t = performance.now()/1000;
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = this.palette(0.5);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for(let x=0;x<=w;x+=6){
+      const y = h/2 + Math.sin(x*0.01 + t*2)*h*0.15;
+      if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = this.palette(0.7);
+    ctx.font = '600 ' + Math.round(h*0.045) + 'px ui-sans-serif, system-ui';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('PICK A STATION TO START', w/2, h*0.28);
+    ctx.restore();
+  }
+  snapshot(){
+    try {
+      const blob = null;
+      this.canvas.toBlob((b)=>{ if(b) downloadBlob(b, 'hexaudio_snapshot_'+Date.now()+'.png'); }, 'image/png');
+    } catch(e){ toast('Snapshot failed: '+e.message, 'err'); }
+  }
 }
 
-/* ==========================================================================
+/* =====================================================================
    RADIO BROWSER
-   ========================================================================== */
+   ===================================================================== */
 const MIRRORS=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info','https://all.api.radio-browser.info'];
 const CORS_SAFE_FALLBACK=[
   {name:'SomaFM — Groove Salad',url:'https://ice1.somafm.com/groovesalad-128-mp3',country:'US',tags:'ambient,chill',codec:'MP3',bitrate:128},
@@ -640,7 +1180,6 @@ const CORS_SAFE_FALLBACK=[
   {name:'SomaFM — DEF CON Radio',url:'https://ice1.somafm.com/defcon-128-mp3',country:'US',tags:'electronic,hacker',codec:'MP3',bitrate:128},
   {name:'SomaFM — Fluid',url:'https://ice1.somafm.com/fluid-128-mp3',country:'US',tags:'hiphop,instrumental',codec:'MP3',bitrate:128}
 ];
-
 async function fetchJson(path){
   let lastErr=null;
   for(const base of MIRRORS){
@@ -666,9 +1205,7 @@ async function searchStations(opts){
   if(opts.tag)params.set('tag',opts.tag);
   if(opts.country)params.set('country',opts.country);
   params.set('limit',String(opts.limit||60));
-  params.set('order','clickcount');
-  params.set('reverse','true');
-  params.set('hidebroken','true');
+  params.set('order','clickcount');params.set('reverse','true');params.set('hidebroken','true');
   try{
     const raw=await fetchJson('/json/stations/search?'+params.toString());
     const list=raw.map(normaliseStation).filter(s=>s.url&&s.https).slice(0,opts.limit||60);
@@ -686,9 +1223,9 @@ async function topStations(limit){
   return CORS_SAFE_FALLBACK.map((s,i)=>Object.assign({},s,{id:'fallback-'+i,https:true}));
 }
 
-/* ==========================================================================
-   CONVERTER
-   ========================================================================== */
+/* =====================================================================
+   CONVERTER HELPERS
+   ===================================================================== */
 async function decodeFile(file){
   const ab=await file.arrayBuffer();
   const Ctx=window.AudioContext||window.webkitAudioContext;
@@ -696,12 +1233,12 @@ async function decodeFile(file){
   try{return await new Promise((res,rej)=>{const p=tmp.decodeAudioData(ab.slice(0),res,rej);if(p&&typeof p.then==='function')p.then(res,rej)})}
   finally{try{await tmp.close()}catch(_){}}
 }
-function normalizeBuffer(buffer,targetPeak=0.89125){
+function normalizeBuffer(buffer,targetPeak){
   let maxPeak=0;
   for(let ch=0;ch<buffer.numberOfChannels;ch++){const d=buffer.getChannelData(ch);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>maxPeak)maxPeak=a}}
   if(maxPeak>0){const scalar=targetPeak/maxPeak;for(let ch=0;ch<buffer.numberOfChannels;ch++){const d=buffer.getChannelData(ch);for(let i=0;i<d.length;i++)d[i]*=scalar}}
 }
-async function renderEnhanced(audioBuffer,settings,normalize=true){
+async function renderEnhanced(audioBuffer,settings,normalize){
   const targetSR=48000,channels=Math.min(audioBuffer.numberOfChannels,2),length=Math.ceil(audioBuffer.duration*targetSR);
   const OfflineCtx=window.OfflineAudioContext||window.webkitOfflineAudioContext;
   const offline=new OfflineCtx(channels,length,targetSR);
@@ -712,7 +1249,8 @@ async function renderEnhanced(audioBuffer,settings,normalize=true){
   if(normalize)normalizeBuffer(rendered,0.89125);
   return rendered;
 }
-function encodeWav(audioBuffer,bitDepth=16){
+function encodeWav(audioBuffer,bitDepth){
+  bitDepth = bitDepth || 16;
   const numCh=audioBuffer.numberOfChannels,sr=audioBuffer.sampleRate,numFrames=audioBuffer.length;
   const bps=bitDepth/8,ba=numCh*bps,ds=numFrames*ba,bs=44+ds;
   const ab=new ArrayBuffer(bs),view=new DataView(ab);
@@ -799,923 +1337,962 @@ function downloadBlob(blob,filename){
   setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 
-/* ==========================================================================
-   DOLBY PROBES — HONEST + DSP FALLBACK
-   Detects HW (may be false) but ALWAYS reports supported via DSP chain.
-   ========================================================================== */
-
-// Probe one codec across all paths. Returns hwAvailable (true/false) and supported (always true via DSP).
-async function probeAudioCodec(contentType, options) {
-  options = options || {};
-  const spatial = !!options.spatial;
-  const r = {
-    mse: false, native: false, mcFile: false, mcSource: false,
-    drm: false, spatialRendering: false,
-    hwAvailable: false,
-    dspFallback: true,
-    supported: true
-  };
-
-  // 1. MSE
-  try { r.mse = 'MediaSource' in window && MediaSource.isTypeSupported(contentType); } catch (_) {}
-
-  // 2. Native canPlayType — try multiple MIME variants + audio + video elements
-  const mimeVariants = [contentType, contentType.replace(/\s+/g, '')];
-  for (const v of mimeVariants) {
-    try {
-      const a = document.createElement('audio').canPlayType(v);
-      if (a === 'probably' || a === 'maybe') { r.native = true; break; }
-    } catch (_) {}
-    try {
-      const vid = document.createElement('video').canPlayType(v);
-      if (vid === 'probably' || vid === 'maybe') { r.native = true; break; }
-    } catch (_) {}
+/* =====================================================================
+   FFmpeg.wasm — UMD loader + stream capture (fixed)
+   ===================================================================== */
+function loadScriptOnce(src){
+  return new Promise((resolve,reject)=>{
+    const existing = document.querySelector(`script[data-hexsrc="${src}"]`);
+    if(existing){ if(existing.dataset.loaded==='1')return resolve(); existing.addEventListener('load',()=>resolve()); existing.addEventListener('error',()=>reject(new Error('Failed: '+src))); return; }
+    const s=document.createElement('script');
+    s.src=src; s.async=true; s.dataset.hexsrc=src;
+    s.onload=()=>{s.dataset.loaded='1';resolve()};
+    s.onerror=()=>reject(new Error('Failed to load '+src));
+    document.head.appendChild(s);
+  });
+}
+let __ffmpeg=null, __ffmpegLoading=null, __ffmpegCoreLabel=null, __ffmpegFetchFile=null, __ffmpegToBlobURL=null;
+function setFFmpegHint(msg){
+  const el=document.getElementById('ffmpegStateHint');
+  if(el&&msg) el.textContent='FFmpeg: '+msg;
+  console.log('[ffmpeg]',msg);
+}
+async function loadFFmpeg(onStatus){
+  if(__ffmpeg) return __ffmpeg;
+  if(__ffmpegLoading) return __ffmpegLoading;
+  onStatus = onStatus || setFFmpegHint;
+  __ffmpegLoading = (async ()=>{
+    onStatus('Loading UMD bundles…');
+    await Promise.all([
+      loadScriptOnce('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js'),
+      loadScriptOnce('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/util.js')
+    ]);
+    const FFmpegCtor = (window.FFmpegWASM && window.FFmpegWASM.FFmpeg) || (window.FFmpeg && window.FFmpeg.FFmpeg);
+    const utilNS = window.FFmpegUtil || (window.FFmpegWASM && window.FFmpegWASM.util);
+    if(!FFmpegCtor) throw new Error('FFmpegWASM.FFmpeg missing — CDN blocked?');
+    if(!utilNS || !utilNS.toBlobURL) throw new Error('FFmpegUtil missing');
+    __ffmpegToBlobURL = utilNS.toBlobURL;
+    __ffmpegFetchFile = utilNS.fetchFile;
+    const ffmpeg = new FFmpegCtor();
+    ffmpeg.on('log',({message})=>{ if(message && /(Stream|Duration|Output|Error|Invalid)/i.test(message)) console.log('[ffmpeg:log]',message) });
+    ffmpeg.on('progress',({progress,time})=>{
+      const pct = Math.max(0,Math.min(100,Math.round((progress||0)*100)));
+      const fill = document.getElementById('captureProgressFill');
+      if(fill) fill.style.width = pct+'%';
+      const st = document.getElementById('recorderStatus');
+      if(st && pct>0) st.textContent = 'FFmpeg encoding… '+pct+'%';
+    });
+    const coreVariants = [
+      { label:'jsdelivr core@0.12.6', base:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd' },
+      { label:'unpkg core@0.12.6',    base:'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd' },
+      { label:'jsdelivr core@0.12.4', base:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.4/dist/umd' },
+      { label:'unpkg core@0.12.4',    base:'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd' }
+    ];
+    let lastErr = null;
+    for(const v of coreVariants){
+      try{
+        onStatus('Loading core ('+v.label+')…');
+        const coreURL = await __ffmpegToBlobURL(v.base+'/ffmpeg-core.js','text/javascript');
+        const wasmURL = await __ffmpegToBlobURL(v.base+'/ffmpeg-core.wasm','application/wasm');
+        await ffmpeg.load({coreURL, wasmURL});
+        __ffmpeg = ffmpeg;
+        __ffmpegCoreLabel = v.label;
+        onStatus('ready ('+v.label+')');
+        return ffmpeg;
+      }catch(err){ console.warn('[ffmpeg] core variant failed:',v.label,err); lastErr=err; }
+    }
+    __ffmpegLoading = null;
+    throw lastErr || new Error('All FFmpeg core CDNs failed');
+  })();
+  __ffmpegLoading.catch(()=>{__ffmpegLoading=null});
+  return __ffmpegLoading;
+}
+async function convertBlobToMp3_320(blob, onStatus){
+  onStatus = onStatus || setFFmpegHint;
+  if(!blob || blob.size < 4096) throw new Error('Input too small');
+  try{
+    const ffmpeg = await loadFFmpeg(onStatus);
+    const inName = 'in_'+Date.now()+'.bin';
+    const outName = 'out_'+Date.now()+'.mp3';
+    onStatus('Writing input…');
+    await ffmpeg.writeFile(inName, await __ffmpegFetchFile(blob));
+    onStatus('Encoding 320kbps MP3…');
+    await ffmpeg.exec(['-i',inName,'-ar','44100','-b:a','320k','-ac','2','-f','mp3',outName]);
+    const data = await ffmpeg.readFile(outName);
+    try{ await ffmpeg.deleteFile(inName); }catch(_){}
+    try{ await ffmpeg.deleteFile(outName); }catch(_){}
+    const mp3Blob = new Blob([data], {type:'audio/mpeg'});
+    onStatus('MP3 ready ('+Math.round(mp3Blob.size/1024)+' KB)');
+    return mp3Blob;
+  }catch(err){
+    console.warn('[ffmpeg] fallback to LAME:', err);
+    onStatus('FFmpeg unavailable — using LAME.js fallback…');
+    return await lameFallbackMp3(blob, onStatus);
   }
+}
+async function lameFallbackMp3(blob, onStatus){
+  if(onStatus) onStatus('LAME: decoding…');
+  const ab = await blob.arrayBuffer();
+  const Ctx = window.AudioContext||window.webkitAudioContext;
+  const ctx = new Ctx();
+  let audioBuffer;
+  try {
+    audioBuffer = await new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab.slice(0),res,rej);if(p&&p.then)p.then(res,rej)});
+  } finally { try{ await ctx.close() }catch(_){} }
+  if(onStatus) onStatus('LAME: encoding 320kbps…');
+  return await encodeMp3(audioBuffer, 320);
+}
 
-  // 3. MediaCapabilities — try file, media-source, multiple channel counts
-  if ('mediaCapabilities' in navigator && navigator.mediaCapabilities && navigator.mediaCapabilities.decodingInfo) {
-    const channelCounts = spatial ? ['16','8','6','2'] : ['6','2','8'];
-    for (const type of ['file','media-source']) {
-      for (const channels of channelCounts) {
-        try {
-          const cfg = { type, audio: { contentType, channels, bitrate: 448000, samplerate: 48000 } };
-          if (spatial) cfg.audio.spatialRendering = true;
-          const info = await navigator.mediaCapabilities.decodingInfo(cfg);
-          if (info.supported) {
-            if (type === 'file') r.mcFile = true;
-            else r.mcSource = true;
-            if (info.spatialRendering) r.spatialRendering = true;
-            break;
-          }
-        } catch (_) {}
-      }
+// ---- capture helpers ----
+let __activeRecorder=null, __recordChunks=[], __recordTick=null, __recordStopTimer=null;
+function getCaptureStream(){
+  const enhancer = state.enhancer;
+  const audioEl = state.audioEl;
+  if(enhancer && enhancer.ctx && enhancer.source && enhancer.bound){
+    try{
+      const dest = enhancer.ctx.createMediaStreamDestination();
+      enhancer.source.connect(dest);
+      return {stream:dest.stream, cleanup:()=>{try{enhancer.source.disconnect(dest)}catch(_){} try{dest.stream.getTracks().forEach(t=>t.stop())}catch(_){}}};
+    }catch(err){ console.warn('enhancer tap failed',err); }
+  }
+  if(audioEl){
+    const fn = audioEl.captureStream || audioEl.mozCaptureStream;
+    if(typeof fn === 'function'){
+      try{ const s=fn.call(audioEl); return {stream:s, cleanup:()=>{try{s.getTracks().forEach(t=>t.stop())}catch(_){}}} }catch(err){ console.warn('captureStream() failed',err); }
     }
   }
-
-  // 4. DRM
-  if (options.drm && 'requestMediaKeySystemAccess' in navigator) {
-    try {
-      await navigator.requestMediaKeySystemAccess('com.widevine.alpha', [{
-        initDataTypes: ['cenc'],
-        audioCapabilities: [{ contentType, robustness: 'SW_SECURE_CRYPTO' }]
-      }]);
-      r.drm = true;
-    } catch (_) {}
-  }
-
-  r.hwAvailable = r.mse || r.native || r.mcFile || r.mcSource;
-  return r;
+  return null;
+}
+async function startCapture(durationSec){
+  if(!state.audioEl){ toast('Play a station first.', 'warn'); return; }
+  if(__activeRecorder){ toast('Capture already running.', 'warn'); return; }
+  const cap = getCaptureStream();
+  if(!cap){ toast('Cannot capture this stream. Try enabling the enhancer first.', 'err'); return; }
+  const mime = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'].find(m=>{try{return MediaRecorder.isTypeSupported(m)}catch(_){return false}}) || '';
+  let rec;
+  try { rec = new MediaRecorder(cap.stream, mime?{mimeType:mime}:undefined); }
+  catch(err){ cap.cleanup(); toast('MediaRecorder error: '+err.message, 'err'); return; }
+  __recordChunks = [];
+  rec.ondataavailable = e=>{ if(e.data && e.data.size>0) __recordChunks.push(e.data); };
+  rec.onerror = e=>{ console.error('Recorder error',e); toast('Recorder error.', 'err'); };
+  rec.onstop = async ()=>{
+    cap.cleanup();
+    __activeRecorder = null;
+    if(__recordTick){ clearInterval(__recordTick); __recordTick=null; }
+    if(__recordStopTimer){ clearTimeout(__recordStopTimer); __recordStopTimer=null; }
+    els.captureBtn.disabled = false;
+    els.captureStopBtn.disabled = true;
+    els.captureProgress.hidden = true;
+    const blob = new Blob(__recordChunks, {type:mime||'audio/webm'});
+    __recordChunks = [];
+    if(blob.size < 4096){ els.recorderStatus.textContent = 'Capture too short — nothing to encode.'; return; }
+    els.recorderStatus.textContent = 'Captured '+Math.round(blob.size/1024)+' KB. Converting to 320kbps MP3…';
+    try{
+      const mp3 = await convertBlobToMp3_320(blob, (msg)=>{ els.recorderStatus.textContent = msg; });
+      const stationName = (state.currentStation && state.currentStation.name) || 'hexaudio-stream';
+      const safe = stationName.replace(/[^\w\-]+/g,'_').slice(0,60) || 'hexaudio-stream';
+      const filename = safe+'_'+durationSec+'s_320.mp3';
+      downloadBlob(mp3, filename);
+      els.recorderStatus.textContent = '✔ Saved '+filename+' ('+Math.round(mp3.size/1024)+' KB)';
+      toast('Saved '+filename, 'ok');
+    }catch(err){ console.error(err); els.recorderStatus.textContent = '❌ Conversion failed: '+err.message; toast('Conversion failed: '+err.message, 'err'); }
+  };
+  __activeRecorder = rec;
+  try { rec.start(1000); }
+  catch(err){ cap.cleanup(); __activeRecorder=null; toast('Start recording failed: '+err.message, 'err'); return; }
+  els.captureBtn.disabled = true;
+  els.captureStopBtn.disabled = false;
+  els.captureProgress.hidden = false;
+  els.captureProgressFill.style.width = '0%';
+  const started = Date.now();
+  __recordTick = setInterval(()=>{
+    const p = Math.min(1, (Date.now()-started)/(durationSec*1000));
+    els.captureProgressFill.style.width = Math.round(p*100)+'%';
+    const remain = Math.max(0, Math.round(durationSec - (Date.now()-started)/1000));
+    els.recorderStatus.textContent = 'Recording… '+remain+'s remaining';
+  }, 250);
+  __recordStopTimer = setTimeout(()=>{ if(__activeRecorder && __activeRecorder.state==='recording') __activeRecorder.stop(); }, durationSec*1000);
+}
+function stopCapture(){
+  if(!__activeRecorder) return;
+  if(__activeRecorder.state==='recording') __activeRecorder.stop();
+}
+async function fetchAndConvertUrl(url){
+  url = (url||'').trim();
+  if(!url){ toast('Enter a URL first.', 'warn'); return; }
+  if(/\.m3u8(\?|$|#)/i.test(url)){ toast('HLS playlists cannot be fetched directly. Use Record & Convert.', 'warn', 7000); return; }
+  if(/\.mpd(\?|$|#)/i.test(url)){ toast('DASH manifests cannot be fetched directly. Use Record & Convert.', 'warn', 7000); return; }
+  els.recorderStatus.textContent = 'Fetching '+url+'…';
+  try{
+    const res = await fetch(url, {mode:'cors'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const blob = await res.blob();
+    if(blob.size < 512) throw new Error('Response too small ('+blob.size+' bytes)');
+    els.recorderStatus.textContent = 'Fetched '+Math.round(blob.size/1024)+' KB. Converting to 320kbps…';
+    const mp3 = await convertBlobToMp3_320(blob, (msg)=>{ els.recorderStatus.textContent = msg; });
+    const base = (url.split('/').pop()||'audio').split('?')[0].replace(/\.[^.]+$/,'') || 'audio';
+    const safe = base.replace(/[^\w\-]+/g,'_').slice(0,60) || 'fetched-audio';
+    const filename = safe+'_320.mp3';
+    downloadBlob(mp3, filename);
+    els.recorderStatus.textContent = '✅ Saved '+filename+' ('+Math.round(mp3.size/1024)+' KB)';
+    toast('Saved '+filename, 'ok');
+  }catch(err){ console.error(err); els.recorderStatus.textContent = '❌ Fetch failed: '+err.message; toast('Fetch failed: '+err.message, 'err', 6500); }
 }
 
-// User's original checkDolbySupport(), now robust with file-type fallback + always-supported semantics
-async function checkDolbySupport() {
-  if (!('mediaCapabilities' in navigator)) {
-    return { ddPlusAtmos: false, ac4Atmos: false, mediaCapabilities: false, dspFallback: true, supportedViaDsp: true };
-  }
-  const eac3Config = { type: 'media-source', audio: { contentType: 'audio/mp4; codecs="ec-3"', channels: '16', spatialRendering: true } };
-  const ac4Config = { type: 'media-source', audio: { contentType: 'audio/mp4; codecs="ac-4.02.01.01"', spatialRendering: true } };
-  const [eac3Result, ac4Result] = await Promise.all([
-    navigator.mediaCapabilities.decodingInfo(eac3Config).catch(() => ({ supported: false })),
-    navigator.mediaCapabilities.decodingInfo(ac4Config).catch(() => ({ supported: false }))
-  ]);
-  let ddPlusAtmos = !!eac3Result.supported;
-  let ac4Atmos = !!ac4Result.supported;
-  if (!ddPlusAtmos) {
-    try {
-      const r = await navigator.mediaCapabilities.decodingInfo({ type: 'file', audio: { contentType: 'audio/mp4; codecs="ec-3"', channels: '6', bitrate: 448000, samplerate: 48000, spatialRendering: true } });
-      ddPlusAtmos = !!r.supported;
-    } catch (_) {}
-  }
-  if (!ac4Atmos) {
-    try {
-      const r = await navigator.mediaCapabilities.decodingInfo({ type: 'file', audio: { contentType: 'audio/mp4; codecs="ac-4.02.01.01"', channels: '6', bitrate: 448000, samplerate: 48000, spatialRendering: true } });
-      ac4Atmos = !!r.supported;
-    } catch (_) {}
-  }
-  return { ddPlusAtmos, ac4Atmos, mediaCapabilities: true, dspFallback: true, supportedViaDsp: true };
-}
-
-// User's getFullDolbySupport() — now with DSP fallback semantics
-async function getFullDolbySupport() {
-  const codecs = [
-    { name: 'DD+ Atmos',     contentType: 'audio/mp4; codecs="ec-3"',          spatial: true  },
-    { name: 'AC-4 Standard', contentType: 'audio/mp4; codecs="ac-4.02.01.01"', spatial: false },
-    { name: 'AC-4 Atmos',    contentType: 'audio/mp4; codecs="ac-4.02.01.02"', spatial: true  }
-  ];
-  const results = await Promise.all(codecs.map(async (item) => {
-    const p = await probeAudioCodec(item.contentType, {
-      channels: item.spatial ? '16' : '6',
-      bitrate: 448000,
-      samplerate: 48000,
-      spatial: item.spatial,
-      drm: true
-    });
-    return [item.name, {
-      mseSupported: p.mse,
-      mcSupported: p.mcFile || p.mcSource,
-      drmSupported: p.drm,
-      nativeSupported: p.native,
-      spatialRendering: p.spatialRendering,
-      hwAvailable: p.hwAvailable,
-      dspFallback: true,
-      supported: true  // Always true: HW plays natively, otherwise DSP emulation kicks in
-    }];
-  }));
-  return Object.fromEntries(results);
-}
-
-/* ==========================================================================
+/* =====================================================================
    STREAM ENGINES
-   ========================================================================== */
+   ===================================================================== */
 const StreamEngines = {
-  hlsInstance: null, shakaPlayer: null, currentType: 'native',
-  async setup(url, audioEl) {
+  hlsInstance:null, shakaPlayer:null, currentType:'native',
+  async setup(url, audioEl){
     this.destroy();
-    if (!url) return 'native';
-    if (/\.m3u8(\?|$|#)/i.test(url)) {
-      if (window.Hls && window.Hls.isSupported()) {
-        const hls = new window.Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 30 });
-        hls.on(window.Hls.Events.ERROR, (_e, data) => {
-          if (data && data.fatal) { try { hls.destroy(); } catch (_) {} if (!audioEl.src) audioEl.src = url; }
-        });
+    if(!url) return 'native';
+    if(/\.m3u8(\?|$|#)/i.test(url)){
+      if(window.Hls && window.Hls.isSupported()){
+        const hls = new window.Hls({enableWorker:true, lowLatencyMode:true, backBufferLength:30});
+        hls.on(window.Hls.Events.ERROR,(_e,data)=>{ if(data && data.fatal){ try{hls.destroy()}catch(_){} if(!audioEl.src) audioEl.src = url; } });
         hls.loadSource(url); hls.attachMedia(audioEl);
         this.hlsInstance = hls; this.currentType = 'hls'; return 'hls';
       }
-      audioEl.src = url; this.currentType = 'native'; return 'native';
+      audioEl.src = url; this.currentType='native'; return 'native';
     }
-    if (/\.mpd(\?|$|#)/i.test(url)) {
-      if (window.shaka) {
-        try { shaka.polyfill.installAll(); } catch (_) {}
-        if (shaka.Player.isBrowserSupported()) {
+    if(/\.mpd(\?|$|#)/i.test(url)){
+      if(window.shaka){
+        try{ shaka.polyfill.installAll() }catch(_){}
+        if(shaka.Player.isBrowserSupported()){
           const player = new shaka.Player();
           await player.attach(audioEl);
-          player.configure({ streaming: { lowLatencyMode: true, rebufferingGoal: 2 } });
-          player.addEventListener('error', (e) => console.warn('Shaka error', e.detail || e));
-          this.shakaPlayer = player; this.currentType = 'shaka';
+          player.configure({streaming:{lowLatencyMode:true, rebufferingGoal:2}});
+          player.addEventListener('error',e=>console.warn('Shaka error',e.detail||e));
+          this.shakaPlayer = player; this.currentType='shaka';
           await player.load(url); return 'shaka';
         }
       }
-      audioEl.src = url; this.currentType = 'native'; return 'native';
+      audioEl.src = url; this.currentType='native'; return 'native';
     }
-    audioEl.src = url; this.currentType = 'native'; return 'native';
+    audioEl.src = url; this.currentType='native'; return 'native';
   },
-  destroy() {
-    if (this.hlsInstance) { try { this.hlsInstance.destroy(); } catch (_) {} this.hlsInstance = null; }
-    if (this.shakaPlayer) { try { this.shakaPlayer.destroy(); } catch (_) {} this.shakaPlayer = null; }
-    this.currentType = 'native';
+  destroy(){
+    if(this.hlsInstance){ try{this.hlsInstance.destroy()}catch(_){} this.hlsInstance=null; }
+    if(this.shakaPlayer){ try{this.shakaPlayer.destroy()}catch(_){} this.shakaPlayer=null; }
+    this.currentType='native';
   }
 };
 
-/* ==========================================================================
+/* =====================================================================
    APP GLUE
-   ========================================================================== */
-const $ = (id) => document.getElementById(id);
+   ===================================================================== */
+const $ = (id)=>document.getElementById(id);
 const els = {
-  atmosBadge: $('atmosBadge'), ctxBadge: $('ctxBadge'), corsBadge: $('corsBadge'),
-  searchInput: $('searchInput'), searchBtn: $('searchBtn'), genreChips: $('genreChips'),
-  countrySelect: $('countrySelect'), stationList: $('stationList'), audioHost: $('audioHost'),
-  npArt: $('npArt'), npName: $('npName'), npSub: $('npSub'), visualizer: $('visualizer'),
-  loadSynthBtn: $('loadSynthBtn'), micBtn: $('micBtn'),
-  toggleEnhance: $('toggleEnhance'), presetRow: $('presetRow'),
-  sBass: $('sBass'), sPresence: $('sPresence'), sTreble: $('sTreble'), sWidth: $('sWidth'),
-  sComp: $('sComp'), sThresh: $('sThresh'), sMakeup: $('sMakeup'),
-  vBass: $('vBass'), vPresence: $('vPresence'), vTreble: $('vTreble'), vWidth: $('vWidth'),
-  vComp: $('vComp'), vThresh: $('vThresh'), vMakeup: $('vMakeup'),
-  atmosSpatialToggle: $('atmosSpatialToggle'), adaptiveToggle: $('adaptiveToggle'),
-  fileInput: $('fileInput'), pickFile: $('pickFile'), formatSelect: $('formatSelect'),
-  normalizeCheck: $('normalizeCheck'), convertBtn: $('convertBtn'), convertStatus: $('convertStatus'),
-  codecBadges: $('codecBadges'), dolbyGrid: $('dolbyGrid'),
-  aiTunerInput: $('aiTunerInput'), aiTuneCurrentBtn: $('aiTuneCurrentBtn'),
-  aiTunePromptBtn: $('aiTunePromptBtn'), aiTunerStatus: $('aiTunerStatus'), aiQuickPresets: $('aiQuickPresets'),
-  streamUrlInput: $('streamUrlInput'), loadStreamBtn: $('loadStreamBtn'),
-  streamEngineStatus: $('streamEngineStatus'), toasts: $('toasts')
+  atmosBadge:$('atmosBadge'), ctxBadge:$('ctxBadge'), corsBadge:$('corsBadge'),
+  searchInput:$('searchInput'), searchBtn:$('searchBtn'), genreChips:$('genreChips'),
+  countrySelect:$('countrySelect'), stationList:$('stationList'), audioHost:$('audioHost'),
+  npArt:$('npArt'), npName:$('npName'), npSub:$('npSub'),
+  playToggleBtn:$('playToggleBtn'), prevBtn:$('prevBtn'), nextBtn:$('nextBtn'),
+  visualizer:$('visualizer'), vizPresets:$('vizPresets'), vizBadge:$('vizBadge'),
+  sSens:$('sSens'), vSens:$('vSens'), sSmooth:$('sSmooth'), vSmooth:$('vSmooth'),
+  vizPalette:$('vizPalette'), vizBgMode:$('vizBgMode'),
+  vizBgImageBtn:$('vizBgImageBtn'), vizBgImageInput:$('vizBgImageInput'),
+  vizScreenshotBtn:$('vizScreenshotBtn'), vizExportDur:$('vizExportDur'),
+  vizExportBtn:$('vizExportBtn'), vizExportStatus:$('vizExportStatus'),
+  toggleEnhance:$('toggleEnhance'), presetRow:$('presetRow'),
+  sBass:$('sBass'), sPresence:$('sPresence'), sTreble:$('sTreble'), sWidth:$('sWidth'),
+  sComp:$('sComp'), sThresh:$('sThresh'), sMakeup:$('sMakeup'),
+  vBass:$('vBass'), vPresence:$('vPresence'), vTreble:$('vTreble'), vWidth:$('vWidth'),
+  vComp:$('vComp'), vThresh:$('vThresh'), vMakeup:$('vMakeup'),
+  atmosSpatialToggle:$('atmosSpatialToggle'), adaptiveToggle:$('adaptiveToggle'),
+  streamUrlInput:$('streamUrlInput'), loadStreamBtn:$('loadStreamBtn'), streamEngineStatus:$('streamEngineStatus'),
+  captureDuration:$('captureDuration'), captureBtn:$('captureBtn'), captureStopBtn:$('captureStopBtn'),
+  fetchUrlInput:$('fetchUrlInput'), fetchConvertBtn:$('fetchConvertBtn'), useStationUrlBtn:$('useStationUrlBtn'),
+  ffmpegWarmBtn:$('ffmpegWarmBtn'), ffmpegStateHint:$('ffmpegStateHint'),
+  recorderStatus:$('recorderStatus'), captureProgress:$('captureProgress'), captureProgressFill:$('captureProgressFill'),
+  fileInput:$('fileInput'), pickFile:$('pickFile'), formatSelect:$('formatSelect'),
+  normalizeCheck:$('normalizeCheck'), convertBtn:$('convertBtn'), convertStatus:$('convertStatus'),
+  codecBadges:$('codecBadges'), dolbyGrid:$('dolbyGrid'),
+  aiTunerInput:$('aiTunerInput'), aiTuneCurrentBtn:$('aiTuneCurrentBtn'),
+  aiTunePromptBtn:$('aiTunePromptBtn'), aiTunerStatus:$('aiTunerStatus'), aiQuickPresets:$('aiQuickPresets'),
+  toasts:$('toasts')
 };
 
 const state = {
-  audioEl: null, enhancer: new AudioEnhancer(), currentStation: null,
-  currentIndex: -1, corsBlocked: false, stations: [],
-  selectedFile: null, masterBuffer: null, masterFileName: 'mastered-track',
-  activeTag: '', playing: false
+  audioEl:null, enhancer:new AudioEnhancer(), currentStation:null,
+  currentIndex:-1, corsBlocked:false, stations:[],
+  selectedFile:null, masterBuffer:null, masterFileName:'mastered-track',
+  activeTag:'', playing:false, viz:null
 };
 
-function toast(msg, kind, ms) {
+function toast(msg, kind, ms){
   kind = kind || 'info'; ms = ms || 5000;
   const el = document.createElement('div');
-  el.className = 'toast' + (kind !== 'info' ? ' toast--' + kind : '');
+  el.className = 'toast' + (kind!=='info'?' toast--'+kind:'');
   el.textContent = msg;
   els.toasts.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(30px)'; el.style.transition = 'all .25s'; setTimeout(() => el.remove(), 260); }, ms);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(30px)'; el.style.transition='all .25s'; setTimeout(()=>el.remove(),260); }, ms);
 }
-
-function createAudioElement(withCors) {
+function createAudioElement(withCors){
   const el = document.createElement('audio');
-  el.id = 'player'; el.controls = true; el.preload = 'none';
-  el.setAttribute('playsinline', '');
-  if (withCors) el.crossOrigin = 'anonymous';
+  el.id = 'player'; el.controls = true; el.preload = 'none'; el.setAttribute('playsinline','');
+  if(withCors) el.crossOrigin = 'anonymous';
   return el;
 }
 
 let wakeLock = null;
-async function requestWakeLock() { if ('wakeLock' in navigator && !wakeLock) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (_) {} } }
-function releaseWakeLock() { if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; } }
+async function requestWakeLock(){ if('wakeLock' in navigator && !wakeLock){ try{ wakeLock = await navigator.wakeLock.request('screen') }catch(_){} } }
+function releaseWakeLock(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; } }
 
-function publishNowPlaying(station) {
-  if ('mediaSession' in navigator && window.MediaMetadata) {
-    try {
+function publishNowPlaying(station){
+  if('mediaSession' in navigator && window.MediaMetadata){
+    try{
       navigator.mediaSession.metadata = new MediaMetadata({
         title: station.name || 'HexAudio',
-        artist: station.country || 'HexAudio Stream',
-        album: station.tags || station.codec || 'Radio',
-        artwork: station.favicon ? [{ src: station.favicon, sizes: '512x512', type: 'image/png' }] : []
+        artist: station.country || 'Radio',
+        album: station.tags || station.codec || '',
+        artwork: station.favicon ? [{src:station.favicon,sizes:'512x512',type:'image/png'}] : []
       });
       navigator.mediaSession.playbackState = 'playing';
-    } catch (_) {}
+    }catch(_){}
   }
 }
-function updateMediaSessionPlaybackState() {
-  if ('mediaSession' in navigator && state.audioEl) {
-    try { navigator.mediaSession.playbackState = state.audioEl.paused ? 'paused' : 'playing'; } catch (_) {}
-  }
+function updatePlayState(){
+  const playing = state.audioEl && !state.audioEl.paused;
+  els.playToggleBtn.innerHTML = playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
 }
-if ('mediaSession' in navigator) {
-  try {
-    navigator.mediaSession.setActionHandler('play', () => togglePlay());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+if('mediaSession' in navigator){
+  try{
+    navigator.mediaSession.setActionHandler('play', ()=>togglePlay());
+    navigator.mediaSession.setActionHandler('pause', ()=>togglePlay());
     navigator.mediaSession.setActionHandler('previoustrack', prevStation);
     navigator.mediaSession.setActionHandler('nexttrack', nextStation);
-  } catch (_) {}
+  }catch(_){}
 }
-
-function wireAudioEvents(el) {
-  el.addEventListener('play', () => {
+function wireAudioEvents(el){
+  el.addEventListener('play', ()=>{
     state.playing = true;
-    if (state.enhancer.ctx && state.enhancer.ctx.state === 'suspended') state.enhancer.ctx.resume().catch(() => {});
-    updateCtxBadge(); updateMediaSessionPlaybackState(); requestWakeLock();
+    if(state.enhancer.ctx && state.enhancer.ctx.state === 'suspended') state.enhancer.ctx.resume().catch(()=>{});
+    updateCtxBadge(); updatePlayState(); requestWakeLock();
+    if('mediaSession' in navigator){ try{ navigator.mediaSession.playbackState='playing' }catch(_){} }
   });
-  el.addEventListener('pause', () => { state.playing = false; updateMediaSessionPlaybackState(); releaseWakeLock(); });
-  el.addEventListener('error', () => {
-    if (el.crossOrigin && !state.corsBlocked) { handleCorsBlocked(); return; }
+  el.addEventListener('pause', ()=>{ state.playing = false; updatePlayState(); releaseWakeLock(); if('mediaSession' in navigator){ try{ navigator.mediaSession.playbackState='paused' }catch(_){} } });
+  el.addEventListener('error', ()=>{
+    if(el.crossOrigin && !state.corsBlocked){ handleCorsBlocked(); return; }
     const code = el.error ? el.error.code : '?';
-    els.npSub.textContent = 'Stream unavailable (code ' + code + ')';
-    toast('Stream error (code ' + code + '). Try another station.', 'err');
+    els.npSub.textContent = 'Stream error (code '+code+')';
   });
-  el.addEventListener('playing', () => {
-    if (state.currentStation) {
-      els.npSub.textContent = [state.currentStation.country, state.currentStation.codec, state.currentStation.bitrate ? state.currentStation.bitrate + ' kbps' : ''].filter(Boolean).join(' · ');
+  el.addEventListener('playing', ()=>{
+    if(state.currentStation){
+      els.npSub.textContent = [state.currentStation.country, state.currentStation.codec, state.currentStation.bitrate?state.currentStation.bitrate+' kbps':''].filter(Boolean).join(' · ');
     }
+    updatePlayState();
   });
 }
-
-function renderStations(list) {
+function renderStations(list){
   state.stations = list;
   els.stationList.innerHTML = '';
-  if (!list.length) { els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-face-frown"></i> No stations found</li>'; return; }
+  if(!list.length){ els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-face-frown"></i> No stations found</li>'; return; }
   const frag = document.createDocumentFragment();
-  list.forEach((st, idx) => {
+  list.forEach((st, idx)=>{
     const li = document.createElement('li');
     li.className = 'station'; li.dataset.id = st.id;
     const logo = document.createElement('div'); logo.className = 'station__logo';
-    if (st.favicon) {
+    if(st.favicon){
       const img = document.createElement('img'); img.src = st.favicon; img.alt = ''; img.loading = 'lazy';
-      img.onerror = () => { img.remove(); logo.innerHTML = '<i class="fa-solid fa-music"></i>'; };
+      img.onerror = ()=>{ img.remove(); logo.innerHTML = '<i class="fa-solid fa-music"></i>'; };
       logo.appendChild(img);
     } else { logo.innerHTML = '<i class="fa-solid fa-music"></i>'; }
     const info = document.createElement('div'); info.className = 'station__info';
     const name = document.createElement('div'); name.className = 'station__name'; name.textContent = st.name;
     const meta = document.createElement('div'); meta.className = 'station__meta';
-    meta.textContent = [st.country, st.codec, st.bitrate ? st.bitrate + 'k' : ''].filter(Boolean).join(' · ') || '—';
+    meta.textContent = [st.country, st.codec, st.bitrate?st.bitrate+'k':''].filter(Boolean).join(' · ') || '—';
     info.appendChild(name); info.appendChild(meta);
     const tag = document.createElement('span'); tag.className = 'station__tag';
-    const firstTag = (st.tags || '').split(',').map(t => t.trim()).filter(Boolean)[0];
-    tag.textContent = firstTag || (st.https ? 'TLS' : 'HTTP');
+    const firstTag = (st.tags||'').split(',').map(t=>t.trim()).filter(Boolean)[0];
+    tag.textContent = firstTag || (st.https?'TLS':'HTTP');
     li.appendChild(logo); li.appendChild(info); li.appendChild(tag);
-    li.addEventListener('click', () => playStation(st, idx, li));
+    li.addEventListener('click', ()=>playStation(st, idx, li));
     frag.appendChild(li);
   });
   els.stationList.appendChild(frag);
 }
-function markActiveStation(li) {
-  els.stationList.querySelectorAll('.station.is-active').forEach(n => n.classList.remove('is-active'));
-  if (li) li.classList.add('is-active');
+function markActiveStation(li){
+  els.stationList.querySelectorAll('.station.is-active').forEach(n=>n.classList.remove('is-active'));
+  if(li) li.classList.add('is-active');
 }
-
-function teardownAudio() {
+function teardownAudio(){
   StreamEngines.destroy();
-  if (!state.audioEl) return;
-  try { state.audioEl.pause(); } catch (_) {}
+  if(!state.audioEl) return;
+  try{ state.audioEl.pause() }catch(_){}
   state.audioEl.removeAttribute('src');
-  try { state.audioEl.load(); } catch (_) {}
+  try{ state.audioEl.load() }catch(_){}
   state.enhancer.release();
   state.audioEl.remove();
   state.audioEl = null;
 }
-
-let silentTicks = 0, watchdogTimer = null;
-function startWatchdog() {
-  if (watchdogTimer) return;
-  watchdogTimer = setInterval(() => {
-    const el = state.audioEl;
-    if (!el || el.paused || state.corsBlocked) { silentTicks = 0; return; }
-    if (!state.enhancer.bound || !state.enhancer.enabled) return;
-    if (el.currentTime < 1.5) return;
-    const { rms } = state.enhancer.getLevels();
-    if (rms < 1e-4) { silentTicks++; if (silentTicks >= 3) handleCorsBlocked(); } else silentTicks = 0;
-  }, 1000);
-}
-
-async function handleCorsBlocked() {
-  if (state.corsBlocked) return;
-  state.corsBlocked = true; silentTicks = 0;
+async function handleCorsBlocked(){
+  if(state.corsBlocked) return;
+  state.corsBlocked = true;
   const url = state.audioEl ? state.audioEl.src : null;
   state.enhancer.release();
-  if (!url) return;
+  if(!url) return;
   const el = createAudioElement(false);
   wireAudioEvents(el); el.src = url;
   state.audioEl.replaceWith(el); state.audioEl = el;
-  try { await el.play(); } catch (_) {}
+  try{ await el.play() }catch(_){}
   updateCorsBadge(); updateEnhancerUI();
-  toast('Stream lacks CORS headers — switched to Raw Playback Mode.', 'warn', 6500);
+  toast('Stream lacks CORS — Raw Playback Mode. Visualizer shows idle animation.', 'warn', 6500);
 }
-
-async function playStation(station, idx, li) {
+async function playStation(station, idx, li){
   teardownAudio();
   state.corsBlocked = false;
   state.currentStation = station;
   state.currentIndex = typeof idx === 'number' ? idx : state.stations.indexOf(station);
-  silentTicks = 0;
   updateCorsBadge();
-  if (state.enhancer.enabled) await state.enhancer.ensureContext();
+  if(state.enhancer.enabled) await state.enhancer.ensureContext();
   const el = createAudioElement(true);
   wireAudioEvents(el);
   els.audioHost.appendChild(el);
   state.audioEl = el;
   els.npName.textContent = station.name;
   els.npSub.textContent = 'Connecting…';
-  if (station.favicon) els.npArt.innerHTML = '<img src="' + station.favicon + '" alt="" onerror="this.remove()">';
-  else els.npArt.innerHTML = '<i class="fa-solid fa-music"></i>';
+  if(station.favicon) els.npArt.innerHTML = '<img src="'+station.favicon+'" alt="" onerror="this.remove()">';
+  else els.npArt.innerHTML = '<i class="fa-solid fa-compact-disc"></i>';
   markActiveStation(li || null);
   let engineUsed = 'native';
-  try {
+  try{
     engineUsed = await StreamEngines.setup(station.url, el);
-    if (engineUsed === 'hls') els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> HLS.js attached · ' + station.url;
-    else if (engineUsed === 'shaka') els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Shaka DASH attached · ' + station.url;
-    else els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> Native element playback · ' + station.url;
-  } catch (err) { try { el.src = station.url; } catch (_) {} }
-  try { await el.play(); }
-  catch (err) {
-    if (err && err.name === 'NotAllowedError') toast('Autoplay blocked — press play.', 'warn');
-    else if (!state.corsBlocked) { await handleCorsBlocked(); return; }
+    if(engineUsed === 'hls') els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> HLS.js attached · '+station.url;
+    else if(engineUsed === 'shaka') els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Shaka DASH · '+station.url;
+    else els.streamEngineStatus.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> Native · '+station.url;
+  }catch(err){ try{ el.src = station.url }catch(_){} }
+  try{ await el.play() }
+  catch(err){
+    if(err && err.name === 'NotAllowedError') toast('Autoplay blocked — press play.', 'warn');
+    else if(!state.corsBlocked){ await handleCorsBlocked(); return; }
   }
-  if (state.enhancer.enabled && !state.corsBlocked) {
-    try { await state.enhancer.bind(el); await state.enhancer.setEnabled(true, el); startWatchdog(); }
-    catch (err) { await handleCorsBlocked(); }
+  // ALWAYS bind for visualizer analyser
+  if(!state.corsBlocked){
+    try{
+      await state.enhancer.bind(el);
+      if(state.enhancer.enabled) await state.enhancer.setEnabled(true, el);
+    }catch(err){ console.warn('bind failed', err); }
   }
   updateCtxBadge();
   publishNowPlaying(station);
+  updatePlayState();
 }
-
-function togglePlay() {
-  if (!state.audioEl) return;
-  if (state.audioEl.paused) state.audioEl.play().catch(() => {});
+function togglePlay(){
+  if(!state.audioEl) return;
+  if(state.audioEl.paused) state.audioEl.play().catch(()=>{});
   else state.audioEl.pause();
 }
-function prevStation() {
-  if (!state.stations.length) return;
-  let i = state.currentIndex - 1; if (i < 0) i = state.stations.length - 1;
+function prevStation(){
+  if(!state.stations.length) return;
+  let i = state.currentIndex - 1; if(i<0) i = state.stations.length - 1;
   playStation(state.stations[i], i, els.stationList.querySelectorAll('.station')[i]);
 }
-function nextStation() {
-  if (!state.stations.length) return;
-  let i = state.currentIndex + 1; if (i >= state.stations.length) i = 0;
+function nextStation(){
+  if(!state.stations.length) return;
+  let i = state.currentIndex + 1; if(i >= state.stations.length) i = 0;
   playStation(state.stations[i], i, els.stationList.querySelectorAll('.station')[i]);
 }
-
-async function loadCustomStream(url) {
-  if (!url) { toast('Enter a stream URL first.', 'warn'); return; }
+async function loadCustomStream(url){
+  if(!url){ toast('Enter a stream URL first.', 'warn'); return; }
   const isHls = /\.m3u8(\?|$|#)/i.test(url);
   const isDash = /\.mpd(\?|$|#)/i.test(url);
   const station = {
-    id: 'custom-' + Date.now(),
-    name: isHls ? 'HLS Stream' : (isDash ? 'DASH Stream' : 'Custom Stream'),
-    url, favicon: '', country: 'Custom',
-    tags: isHls ? 'hls' : (isDash ? 'dash' : 'direct'),
-    codec: isHls ? 'HLS' : (isDash ? 'DASH' : 'Direct'),
-    bitrate: 0, https: url.indexOf('https://') === 0
+    id:'custom-'+Date.now(),
+    name: isHls?'HLS Stream':(isDash?'DASH Stream':'Custom Stream'),
+    url, favicon:'', country:'Custom',
+    tags: isHls?'hls':(isDash?'dash':'direct'),
+    codec: isHls?'HLS':(isDash?'DASH':'Direct'),
+    bitrate:0, https: url.indexOf('https://')===0
   };
-  if (!isHls && !isDash) {
-    const m = url.match(/\.([a-z0-9]+)(?:\?|$|#)/i);
-    if (m) station.codec = m[1].toUpperCase();
-  }
+  if(!isHls && !isDash){ const m = url.match(/\.([a-z0-9]+)(?:\?|$|#)/i); if(m) station.codec = m[1].toUpperCase(); }
   await playStation(station, -1, null);
 }
 
-els.loadStreamBtn.addEventListener('click', () => loadCustomStream(els.streamUrlInput.value.trim()));
-els.streamUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadCustomStream(els.streamUrlInput.value.trim()); });
-document.querySelectorAll('[data-demo-hls]').forEach(b => b.addEventListener('click', () => { els.streamUrlInput.value = b.dataset.demoHls; loadCustomStream(b.dataset.demoHls); }));
-document.querySelectorAll('[data-demo-dash]').forEach(b => b.addEventListener('click', () => { els.streamUrlInput.value = b.dataset.demoDash; loadCustomStream(b.dataset.demoDash); }));
-document.querySelectorAll('[data-demo-dolby]').forEach(b => b.addEventListener('click', () => { els.streamUrlInput.value = b.dataset.demoDolby; loadCustomStream(b.dataset.demoDolby); }));
-
-els.loadSynthBtn.addEventListener('click', async () => {
-  els.loadSynthBtn.disabled = true;
-  els.npName.textContent = 'AtmosForge 48kHz Spatial Reference';
-  els.npSub.textContent = 'Synthesizing 48kHz spatial reference…';
-  try {
-    await state.enhancer.ensureContext();
-    const buffer = await generateReferenceTrackBuffer(8);
-    state.masterBuffer = buffer;
-    state.masterFileName = 'atmosforge-48khz-reference';
-    els.convertBtn.disabled = false;
-    els.convertStatus.textContent = 'Loaded 48kHz Stereo Reference Track.';
-    const wavBlob = encodeWav(buffer, 16);
-    const url = URL.createObjectURL(wavBlob);
-    teardownAudio();
-    state.corsBlocked = false; state.currentStation = null;
-    markActiveStation(null); updateCorsBadge();
-    const el = createAudioElement(true);
-    wireAudioEvents(el); el.loop = true;
-    els.audioHost.appendChild(el); state.audioEl = el;
-    els.npArt.innerHTML = '<i class="fa-solid fa-wave-square"></i>';
-    els.npSub.textContent = '48 kHz · 24-bit DSP · Stereo Spatial Loop';
-    el.src = url;
-    await el.play();
-    await state.enhancer.bind(el);
-    await state.enhancer.setEnabled(true, el);
-    updateEnhancerUI(); updateCtxBadge();
-    toast('Playing 48kHz Spatial Reference Track.', 'ok');
-  } catch (err) { toast('Failed: ' + err.message, 'err'); }
-  finally { els.loadSynthBtn.disabled = false; }
+/* ---- Search ---- */
+let __searchSeq = 0;
+async function doSearch(){
+  const q = els.searchInput.value.trim();
+  const tag = state.activeTag;
+  const country = els.countrySelect.value;
+  const seq = ++__searchSeq;
+  els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Searching…</li>';
+  try{
+    const list = await searchStations({q, tag, country, limit:60});
+    if(seq !== __searchSeq) return;
+    renderStations(list);
+  }catch(e){ els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-face-frown"></i> '+e.message+'</li>'; }
+}
+els.searchBtn.addEventListener('click', doSearch);
+els.searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSearch(); });
+els.countrySelect.addEventListener('change', doSearch);
+els.genreChips.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.chip'); if(!btn) return;
+  const tag = btn.dataset.tag;
+  const isActive = state.activeTag === tag;
+  state.activeTag = isActive ? '' : tag;
+  els.genreChips.querySelectorAll('.chip').forEach(b=>b.classList.toggle('is-active', b===btn && !isActive));
+  doSearch();
 });
+els.prevBtn.addEventListener('click', prevStation);
+els.nextBtn.addEventListener('click', nextStation);
+els.playToggleBtn.addEventListener('click', togglePlay);
 
-els.micBtn.addEventListener('click', async () => {
-  try {
-    const active = await state.enhancer.toggleMicrophone();
-    if (active) {
-      await state.enhancer.setEnabled(true, null);
-      updateEnhancerUI();
-      els.micBtn.classList.add('btn--danger');
-      els.micBtn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> Stop Mic Monitor';
-      els.npName.textContent = 'Live Microphone Monitor';
-      els.npSub.textContent = 'Low-latency real-time DSP active';
-      toast('Live mic routed through DSP.', 'ok');
-    } else {
-      els.micBtn.classList.remove('btn--danger');
-      els.micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Live Mic Monitor';
-      toast('Mic stopped.', 'info');
-    }
-    updateCtxBadge();
-  } catch (err) { toast('Mic error: ' + err.message, 'err'); }
-});
+els.loadStreamBtn.addEventListener('click', ()=>loadCustomStream(els.streamUrlInput.value.trim()));
+els.streamUrlInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') loadCustomStream(els.streamUrlInput.value.trim()); });
+document.querySelectorAll('[data-demo-hls]').forEach(b=>b.addEventListener('click', ()=>{ els.streamUrlInput.value=b.dataset.demoHls; loadCustomStream(b.dataset.demoHls); }));
+document.querySelectorAll('[data-demo-dash]').forEach(b=>b.addEventListener('click', ()=>{ els.streamUrlInput.value=b.dataset.demoDash; loadCustomStream(b.dataset.demoDash); }));
+document.querySelectorAll('[data-demo-dolby]').forEach(b=>b.addEventListener('click', ()=>{ els.streamUrlInput.value=b.dataset.demoDolby; loadCustomStream(b.dataset.demoDolby); }));
 
-function updateCtxBadge() {
+function updateCtxBadge(){
   const ctx = state.enhancer.ctx;
-  if (!ctx) { els.ctxBadge.className = 'badge badge--muted'; els.ctxBadge.innerHTML = '<i class="fa-solid fa-power-off"></i> AudioContext idle'; return; }
+  if(!ctx){ els.ctxBadge.className='badge badge--muted'; els.ctxBadge.innerHTML = '<i class="fa-solid fa-power-off"></i> AudioContext idle'; return; }
   const running = ctx.state === 'running';
   els.ctxBadge.className = 'badge ' + (running ? 'badge--ok' : 'badge--warn');
   els.ctxBadge.innerHTML = running
-    ? '<i class="fa-solid fa-wave-square"></i> AudioContext ' + ctx.sampleRate + ' Hz'
+    ? '<i class="fa-solid fa-wave-square"></i> AudioContext '+ctx.sampleRate+' Hz'
     : '<i class="fa-solid fa-pause"></i> AudioContext suspended';
 }
-function updateCorsBadge() {
-  if (state.corsBlocked) { els.corsBadge.className = 'badge badge--warn'; els.corsBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> CORS blocked — raw mode'; }
-  else { els.corsBadge.className = 'badge badge--ok'; els.corsBadge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> CORS ready'; }
+function updateCorsBadge(){
+  if(state.corsBlocked){ els.corsBadge.className='badge badge--warn'; els.corsBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> CORS blocked'; }
+  else { els.corsBadge.className='badge badge--ok'; els.corsBadge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> CORS ready'; }
 }
-function updateEnhancerUI() {
+function updateEnhancerUI(){
   const on = state.enhancer.enabled && !state.corsBlocked;
   els.toggleEnhance.classList.toggle('is-on', on);
   els.toggleEnhance.innerHTML = on
     ? '<i class="fa-solid fa-power-off"></i> <span>Disable Enhancer</span>'
     : '<i class="fa-solid fa-power-off"></i> <span>Enable Enhancer</span>';
 }
-function updateAtmosBadge(dolby) {
-  if (!dolby) return;
-  // HW Dolby decoders present — best case
-  if (dolby.ddPlusAtmos || dolby.ac4Atmos) {
-    const codecs = [dolby.ddPlusAtmos && 'DD+ JOC', dolby.ac4Atmos && 'AC-4'].filter(Boolean).join(' + ');
-    els.atmosBadge.className = 'badge badge--ok';
-    els.atmosBadge.innerHTML = '<i class="fa-solid fa-headphones"></i> Atmos HW Decoder (' + codecs + ')';
-    return;
-  }
-  // No HW decoder — but DSP fallback ALWAYS works
-  els.atmosBadge.className = 'badge badge--ok';
-  els.atmosBadge.innerHTML = '<i class="fa-solid fa-headphones"></i> Atmos DSP Active · No HW Decoder';
-}
 
-els.toggleEnhance.addEventListener('click', async () => {
-  if (!state.audioEl && !state.enhancer.isMicActive) { toast('Pick a station, load a track, or start Live Mic.', 'warn'); return; }
-  if (state.corsBlocked) { toast('Enhancer unavailable for this CORS-blocked stream.', 'warn'); return; }
-  try {
-    if (!state.enhancer.enabled) {
-      if (state.audioEl) await state.enhancer.bind(state.audioEl);
-      await state.enhancer.setEnabled(true, state.audioEl);
-      if (state.audioEl) startWatchdog();
-    } else { await state.enhancer.setEnabled(false, state.audioEl); }
+els.toggleEnhance.addEventListener('click', async ()=>{
+  if(!state.audioEl){ toast('Pick a station first.', 'warn'); return; }
+  if(state.corsBlocked){ toast('Enhancer unavailable for CORS-blocked stream.', 'warn'); return; }
+  try{
+    if(!state.enhancer.enabled){ await state.enhancer.bind(state.audioEl); await state.enhancer.setEnabled(true, state.audioEl); }
+    else { await state.enhancer.setEnabled(false, state.audioEl); }
     updateEnhancerUI(); updateCtxBadge();
-  } catch (err) { await handleCorsBlocked(); }
+  }catch(err){ toast('Enhancer error: '+err.message, 'err'); }
 });
 
-els.presetRow.addEventListener('click', (e) => {
-  const btn = e.target.closest('.preset'); if (!btn) return;
+els.presetRow.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.preset'); if(!btn) return;
   const name = btn.dataset.preset;
   state.enhancer.setPreset(name);
-  els.presetRow.querySelectorAll('.preset').forEach(b => b.classList.toggle('is-active', b === btn));
+  els.presetRow.querySelectorAll('.preset').forEach(b=>b.classList.toggle('is-active', b===btn));
   const p = PRESETS[name];
-  if (p) {
+  if(p){
     els.sBass.value = p.bass; els.sPresence.value = p.presence; els.sTreble.value = p.treble;
     els.sWidth.value = p.atmos ?? 0.35;
-    els.sComp.value = p.comp ? (p.ratio || 12) : 0;
+    els.sComp.value = p.comp ? (p.ratio||12) : 0;
     els.sThresh.value = p.threshold ?? -24;
     els.sMakeup.value = p.makeup;
     syncSliderLabels();
   }
-  if (state.enhancer.enabled) state.enhancer.setOverrides({ bass: p.bass, presence: p.presence, treble: p.treble, comp: p.comp, makeup: p.makeup, threshold: p.threshold, ratio: p.ratio, knee: p.knee, atmos: p.atmos });
+  if(state.enhancer.enabled) state.enhancer.setOverrides({bass:p.bass, presence:p.presence, treble:p.treble, comp:p.comp, makeup:p.makeup, threshold:p.threshold, ratio:p.ratio, knee:p.knee, atmos:p.atmos});
 });
-
-function syncSliderLabels() {
+function syncSliderLabels(){
   els.vBass.textContent = (+els.sBass.value).toFixed(1);
   els.vPresence.textContent = (+els.sPresence.value).toFixed(1);
   els.vTreble.textContent = (+els.sTreble.value).toFixed(1);
-  els.vWidth.textContent = Math.round((+els.sWidth.value) * 100);
+  els.vWidth.textContent = Math.round((+els.sWidth.value)*100);
   els.vComp.textContent = (+els.sComp.value).toFixed(0);
   els.vThresh.textContent = (+els.sThresh.value).toFixed(0);
   els.vMakeup.textContent = (+els.sMakeup.value).toFixed(2);
 }
-function pushSliderOverrides() {
+function pushSliderOverrides(){
   const compRatio = +els.sComp.value;
   state.enhancer.setOverrides({
-    bass: +els.sBass.value, presence: +els.sPresence.value, treble: +els.sTreble.value,
-    atmos: +els.sWidth.value, comp: compRatio > 1, ratio: compRatio > 1 ? compRatio : 12,
-    threshold: +els.sThresh.value, makeup: +els.sMakeup.value
+    bass:+els.sBass.value, presence:+els.sPresence.value, treble:+els.sTreble.value,
+    atmos:+els.sWidth.value, comp:compRatio>1, ratio:compRatio>1?compRatio:12,
+    threshold:+els.sThresh.value, makeup:+els.sMakeup.value
   });
 }
-[els.sBass, els.sPresence, els.sTreble, els.sWidth, els.sComp, els.sThresh, els.sMakeup].forEach(sl => {
-  sl.addEventListener('input', () => { syncSliderLabels(); pushSliderOverrides(); });
+[els.sBass, els.sPresence, els.sTreble, els.sWidth, els.sComp, els.sThresh, els.sMakeup].forEach(sl=>{
+  sl.addEventListener('input', ()=>{ syncSliderLabels(); pushSliderOverrides(); });
 });
 syncSliderLabels();
 
-els.atmosSpatialToggle.addEventListener('change', () => {
+els.atmosSpatialToggle.addEventListener('change', ()=>{
   state.enhancer.setAtmosEnabled(els.atmosSpatialToggle.checked);
-  if (els.atmosSpatialToggle.checked && !state.enhancer.enabled) toast('Enable the enhancer to hear Atmos DSP.', 'warn');
 });
-els.adaptiveToggle.addEventListener('change', () => {
+els.adaptiveToggle.addEventListener('change', ()=>{
   state.enhancer.setAdaptive(els.adaptiveToggle.checked);
-  if (els.adaptiveToggle.checked && !state.enhancer.enabled) toast('Enable the enhancer to hear adaptive balancing.', 'warn');
 });
 
-/* ==========================================================================
-   AI TUNER — 5 FREE MODELS (no API key)
-   ========================================================================== */
-
-// 20+ keyword categories → guaranteed good result
-function heuristicCurveForPrompt(text) {
-  const q = (text || '').toLowerCase();
-  if (q.match(/hearing|accessib|impaired|hard of hearing/)) return { bass:-3,presence:8,treble:5,comp:8,thresh:-26,makeup:1.35,atmos:0.05,summary:'Hearing-impaired speech boost with presence clarity.' };
-  if (q.match(/podcast|voice|speech|news|audiobook|lecture|sermon|talk|interview/)) return { bass:-1.5,presence:5.5,treble:2,comp:6,thresh:-28,makeup:1.22,atmos:0.12,summary:'Speech clarity & vocal intelligibility curve.' };
-  if (q.match(/cinema|film|movie|theat|surround/)) return { bass:7,presence:3,treble:4,comp:10,thresh:-22,makeup:1.05,atmos:0.70,summary:'Cinematic Atmos height stage with wide dynamics.' };
-  if (q.match(/bass|edm|synthwave|synth|club|hip.?hop|rap|dnb|drum.?and.?bass|techno|house|trap/)) return { bass:8.5,presence:2.5,treble:3.5,comp:12,thresh:-22,makeup:1.00,atmos:0.48,summary:'Deep low-end punch with Atmos spatial width.' };
-  if (q.match(/night|late|quiet|sleep|calm|relax|sleep/)) return { bass:2.5,presence:1.5,treble:1,comp:18,thresh:-38,makeup:1.55,atmos:0.25,summary:'Nighttime leveling for even low-volume listening.' };
-  if (q.match(/classical|acoustic|jazz|orchestral|piano|chamber|string/)) return { bass:3,presence:2,treble:4.5,comp:2,thresh:-18,makeup:1.05,atmos:0.48,summary:'Open acoustic detail with spatial hall depth.' };
-  if (q.match(/rock|metal|punk|grunge|indie/)) return { bass:5,presence:4.5,treble:5,comp:10,thresh:-22,makeup:1.10,atmos:0.30,summary:'Guitar presence with punchy mid-focused balance.' };
-  if (q.match(/vocal|pop|rnb|r&b|soul|ballad|love|romantic/)) return { bass:3,presence:5,treble:3.5,comp:8,thresh:-26,makeup:1.15,atmos:0.35,summary:'Forward vocals with warm harmonic balance.' };
-  if (q.match(/country|folk|blues|americana/)) return { bass:3.5,presence:3.5,treble:4,comp:6,thresh:-22,makeup:1.08,atmos:0.32,summary:'Natural acoustic balance with warm presence.' };
-  if (q.match(/lo.?fi|chill|ambient|study|focus|background/)) return { bass:4,presence:1,treble:1,comp:14,thresh:-32,makeup:1.25,atmos:0.45,summary:'Smooth lo-fi chill with wide spatial ambience.' };
-  if (q.match(/headphone|earbud|iem|in.?ear/)) return { bass:4,presence:3,treble:3,comp:8,thresh:-24,makeup:1.10,atmos:0.42,summary:'Headphone-optimized with expanded spatial field.' };
-  if (q.match(/speaker|stereo|soundbar|car|auto|vehicle/)) return { bass:6,presence:3.5,treble:3,comp:12,thresh:-24,makeup:1.05,atmos:0.22,summary:'Speaker-optimized with tighter bass control.' };
-  if (q.match(/studio|monitor|reference|neutral|flat/)) return { bass:1.5,presence:2,treble:2,comp:3,thresh:-20,makeup:1.02,atmos:0.15,summary:'Neutral reference monitor balance.' };
-  if (q.match(/reggae|dub|dancehall|soca/)) return { bass:7,presence:2,treble:3,comp:10,thresh:-24,makeup:1.05,atmos:0.40,summary:'Dub-heavy bass with warm presence and spatial dub.' };
-  if (q.match(/gospel|church|worship|choir/)) return { bass:2,presence:5,treble:3.5,comp:8,thresh:-26,makeup:1.18,atmos:0.42,summary:'Choir & organ balance with spatial church reverb.' };
-  if (q.match(/karaoke|sing|vocal practice/)) return { bass:2,presence:6,treble:3,comp:6,thresh:-28,makeup:1.15,atmos:0.20,summary:'Karaoke vocal-forward with presence clarity.' };
-  if (q.match(/asmr|whisper|binaural|3d/)) return { bass:0,presence:4,treble:4,comp:3,thresh:-24,makeup:1.20,atmos:0.65,summary:'Binaural ASMR with maximum spatial depth.' };
-  if (q.match(/audiophile|hi.?res|hi.?fi|lossless/)) return { bass:2,presence:2,treble:3,comp:2,thresh:-18,makeup:1.02,atmos:0.30,summary:'Audiophile neutral with minimal compression.' };
-  return { bass:5.5,presence:3,treble:4,comp:10,thresh:-24,makeup:1.08,atmos:0.38,summary:'Balanced studio + Dolby Atmos enhancement curve.' };
-}
-
-const AI_PROVIDERS = [
-  { name: 'Pollinations/OpenAI',     build: (p) => 'https://text.pollinations.ai/' + encodeURIComponent(p) + '?model=openai' },
-  { name: 'Pollinations/Mistral',    build: (p) => 'https://text.pollinations.ai/' + encodeURIComponent(p) + '?model=mistral' },
-  { name: 'Pollinations/Llama',      build: (p) => 'https://text.pollinations.ai/' + encodeURIComponent(p) + '?model=llama' },
-  { name: 'Pollinations/Qwen',       build: (p) => 'https://text.pollinations.ai/' + encodeURIComponent(p) + '?model=qwen' },
-  { name: 'Pollinations/OpenAI-Lrg', build: (p) => 'https://text.pollinations.ai/' + encodeURIComponent(p) + '?model=openai-large' }
-];
-
-function extractJsonCurve(raw) {
-  if (!raw) return null;
-  try {
-    const m = raw.match(/\{[\s\S]*?\}/);
-    if (!m) return null;
-    const p = JSON.parse(m[0]);
-    return {
-      bass: clamp(Number(p.bass ?? 5), -12, 15),
-      presence: clamp(Number(p.presence ?? 3), -12, 12),
-      treble: clamp(Number(p.treble ?? 3.5), -12, 15),
-      comp: clamp(Math.round(Number(p.comp ?? 10)), 0, 20),
-      thresh: clamp(Math.round(Number(p.thresh ?? -24)), -50, 0),
-      makeup: clamp(Number(p.makeup ?? 1.05), 0.5, 2),
-      atmos: clamp(Number(p.atmos ?? 0.35), 0, 1),
-      summary: String(p.summary || 'AI-generated acoustic profile.').slice(0, 80)
-    };
-  } catch (_) { return null; }
-}
-
-async function fetchAiCurve(promptText, onStatus) {
-  const instruction = 'You are an audio engineer. Return ONLY a JSON object (no markdown) with keys: ' +
-    'bass (-12..15), presence (-12..12), treble (-12..15), comp (0..20), thresh (-50..0), ' +
-    'makeup (0.5..2), atmos (0..1), summary (max 14 words). User: "' + promptText + '". JSON only.';
-
-  for (let i = 0; i < AI_PROVIDERS.length; i++) {
-    const provider = AI_PROVIDERS[i];
-    if (onStatus) onStatus('Trying ' + provider.name + ' (' + (i + 1) + '/' + AI_PROVIDERS.length + ')…');
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 7000);
-      const res = await fetch(provider.build(instruction), { signal: controller.signal, mode: 'cors' });
-      clearTimeout(timer);
-      if (!res.ok) continue;
-      const raw = await res.text();
-      const curve = extractJsonCurve(raw);
-      if (curve) return curve;
-    } catch (_) { /* try next */ }
+/* =====================================================================
+   VISUALIZER WIRING
+   ===================================================================== */
+function buildVizPresetsUI(){
+  const container = els.vizPresets;
+  if(!container) return;
+  container.innerHTML = '';
+  for(const p of VIZ_PRESETS){
+    const btn = document.createElement('button');
+    btn.className = 'viz-preset' + (p.id==='bars'?' is-active':'');
+    btn.dataset.preset = p.id;
+    btn.innerHTML = '<i class="fa-solid '+p.icon+'"></i><span>'+p.name+'</span>';
+    btn.addEventListener('click', ()=>{
+      state.viz.setPreset(p.id);
+      container.querySelectorAll('.viz-preset').forEach(b=>b.classList.toggle('is-active', b===btn));
+      els.vizBadge.textContent = p.name;
+    });
+    container.appendChild(btn);
   }
-  return null;
 }
 
-async function applyAiTuningPrompt(promptText) {
-  els.aiTunerStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Consulting AI models…';
-  els.aiTunePromptBtn.disabled = true; els.aiTuneCurrentBtn.disabled = true;
-  let curve = null, usedFallback = false;
-  try {
-    curve = await fetchAiCurve(promptText, (msg) => { els.aiTunerStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ' + msg; });
-  } catch (_) {}
-  if (!curve) { curve = heuristicCurveForPrompt(promptText); usedFallback = true; }
+function initVisualizer(){
+  state.viz = new Viz(els.visualizer, ()=>state.enhancer.getAnalyser());
+  state.viz.setPreset('bars');
+  state.viz.setSensitivity(1);
+  state.viz.setPalette('neon');
+  state.viz.setBackground('gradient:midnight');
+  state.viz.start();
+  buildVizPresetsUI();
 
-  els.sBass.value = curve.bass; els.sPresence.value = curve.presence; els.sTreble.value = curve.treble;
-  els.sWidth.value = curve.atmos; els.sComp.value = curve.comp;
-  els.sThresh.value = curve.thresh; els.sMakeup.value = curve.makeup;
-  syncSliderLabels();
-  state.enhancer.setOverrides({
-    bass: curve.bass, presence: curve.presence, treble: curve.treble,
-    comp: curve.comp > 1, ratio: curve.comp > 1 ? curve.comp : 12,
-    threshold: curve.thresh, makeup: curve.makeup, atmos: curve.atmos
+  els.sSens.addEventListener('input', ()=>{
+    const v = +els.sSens.value;
+    state.viz.setSensitivity(v);
+    els.vSens.textContent = v.toFixed(2)+'×';
   });
-  if (state.audioEl && !state.corsBlocked && !state.enhancer.enabled) {
-    try {
-      await state.enhancer.bind(state.audioEl);
-      await state.enhancer.setEnabled(true, state.audioEl);
-      startWatchdog(); updateEnhancerUI(); updateCtxBadge();
-    } catch (_) {}
-  }
-  const prefix = usedFallback
-    ? '<i class="fa-solid fa-circle-info" style="color:#f59e0b"></i> <em>Heuristic:</em> '
-    : '<i class="fa-solid fa-robot" style="color:#22c55e"></i> <em>AI:</em> ';
-  els.aiTunerStatus.innerHTML = prefix + curve.summary;
-  els.aiTunePromptBtn.disabled = false; els.aiTuneCurrentBtn.disabled = false;
+  els.sSmooth.addEventListener('input', ()=>{
+    const v = +els.sSmooth.value;
+    state.viz.setSmoothing(v);
+    els.vSmooth.textContent = v.toFixed(2);
+  });
+  els.vizPalette.addEventListener('change', ()=>{ state.viz.setPalette(els.vizPalette.value); });
+  els.vizBgMode.addEventListener('change', ()=>{ state.viz.setBackground(els.vizBgMode.value); });
+  els.vizBgImageBtn.addEventListener('click', ()=>els.vizBgImageInput.click());
+  els.vizBgImageInput.addEventListener('change', ()=>{
+    const file = els.vizBgImageInput.files && els.vizBgImageInput.files[0];
+    if(!file) return;
+    const img = new Image();
+    img.onload = ()=>{ state.viz.setBackground('image', img); els.vizBgMode.value = 'image'; };
+    img.onerror = ()=> toast('Image load failed', 'err');
+    img.src = URL.createObjectURL(file);
+  });
+  els.vizScreenshotBtn.addEventListener('click', ()=>state.viz.snapshot());
+  els.vizExportBtn.addEventListener('click', ()=> exportVideo(+els.vizExportDur.value));
+
+  // Start idle animation immediately
+  els.vizBadge.textContent = 'Bars';
 }
 
-els.aiTunePromptBtn.addEventListener('click', () => {
-  const q = els.aiTunerInput.value.trim() || 'Balanced studio clarity for headphones';
-  applyAiTuningPrompt(q);
-});
-els.aiTunerInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { const q = els.aiTunerInput.value.trim() || 'Balanced studio clarity for headphones'; applyAiTuningPrompt(q); }
-});
-els.aiTuneCurrentBtn.addEventListener('click', () => {
+async function exportVideo(durationSec){
+  if(!state.viz) return;
+  const btn = els.vizExportBtn;
+  const status = els.vizExportStatus;
+  if(typeof MediaRecorder === 'undefined'){ toast('MediaRecorder not supported in this browser.', 'err'); return; }
+  btn.disabled = true;
+
+  const canvas = state.viz.canvas;
+  let videoStream;
+  try { videoStream = canvas.captureStream(60); }
+  catch(err){ toast('Canvas capture failed: '+err.message, 'err'); btn.disabled = false; return; }
+
+  // Combine with audio stream (optional — video still works without it)
+  const audioStream = state.enhancer.getExportStream();
+  let combinedStream = videoStream;
+  if(audioStream && state.audioEl && !state.audioEl.paused){
+    combinedStream = new MediaStream([
+      ...videoStream.getVideoTracks(),
+      ...audioStream.getAudioTracks()
+    ]);
+  }
+
+  const mimeCandidates = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ];
+  let mime = 'video/webm';
+  for(const m of mimeCandidates){ try{ if(MediaRecorder.isTypeSupported(m)){ mime=m; break; } }catch(_){} }
+
+  let rec;
+  try {
+    rec = new MediaRecorder(combinedStream, {mimeType:mime, videoBitsPerSecond: 8_000_000});
+  } catch(err){ toast('MediaRecorder init failed: '+err.message, 'err'); btn.disabled = false; return; }
+
+  const chunks = [];
+  rec.ondataavailable = (e)=>{ if(e.data && e.data.size > 0) chunks.push(e.data); };
+  rec.onstop = ()=>{
+    const blob = new Blob(chunks, {type: mime});
+    const fname = 'hexaudio_'+state.viz.preset+'_'+Date.now()+'.webm';
+    downloadBlob(blob, fname);
+    status.innerHTML = '<b>✓ Saved</b> '+fname+' · '+(blob.size/1024/1024).toFixed(1)+' MB';
+    toast('Video saved: '+fname, 'ok', 5500);
+    btn.disabled = false;
+  };
+  rec.onerror = (e)=>{ console.error(e); status.textContent = '❌ '+e.error?.message || 'Recorder error'; btn.disabled = false; };
+  rec.start();
+  const startT = Date.now();
+  status.innerHTML = '<b>🔴 Recording</b> '+durationSec+'s…';
+  const tick = setInterval(()=>{
+    const remain = Math.max(0, Math.ceil(durationSec - (Date.now()-startT)/1000));
+    status.innerHTML = '<b>🔴 Recording</b> '+remain+'s remaining · '+(audioStream?'with audio':'video only');
+    if(remain<=0) clearInterval(tick);
+  }, 250);
+  setTimeout(()=>{ if(rec.state !== 'inactive') rec.stop(); }, durationSec*1000);
+}
+
+/* =====================================================================
+   RECORDER WIRING
+   ===================================================================== */
+els.captureBtn.addEventListener('click', ()=>{ startCapture(parseInt(els.captureDuration.value,10)||30); });
+els.captureStopBtn.addEventListener('click', stopCapture);
+els.fetchConvertBtn.addEventListener('click', ()=>fetchAndConvertUrl(els.fetchUrlInput.value));
+els.fetchUrlInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') fetchAndConvertUrl(els.fetchUrlInput.value); });
+els.useStationUrlBtn.addEventListener('click', ()=>{
   const st = state.currentStation;
-  const ctx = st ? (st.name + ' (' + (st.tags || st.codec || 'radio') + ')') : 'Active live radio stream';
-  applyAiTuningPrompt('Tune audio enhancer for station: ' + ctx);
+  if(!st || !st.url){ toast('No current station URL.', 'warn'); return; }
+  els.fetchUrlInput.value = st.url;
+  toast('Inserted URL. For live streams use Record & Convert.', 'info', 5000);
 });
-els.aiQuickPresets.addEventListener('click', (e) => {
-  const chip = e.target.closest('.chip'); if (!chip) return;
-  els.aiTunerInput.value = chip.dataset.ai;
-  applyAiTuningPrompt(chip.dataset.ai);
-});
-
-/* Visualizer */
-const vizCanvas = els.visualizer;
-const vizCtx = vizCanvas.getContext('2d');
-function drawVisualizer() {
-  requestAnimationFrame(drawVisualizer);
-  const w = vizCanvas.width, h = vizCanvas.height;
-  vizCtx.clearRect(0, 0, w, h);
-  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--p').trim() || '#4b6bfb';
-  const accentColor  = getComputedStyle(document.documentElement).getPropertyValue('--a').trim() || '#67cba0';
-  if (state.playing && state.corsBlocked) {
-    const bars = 28, barW = w / bars, now = performance.now() * 0.004;
-    vizCtx.fillStyle = primaryColor;
-    for (let i = 0; i < bars; i++) {
-      const wave = 0.25 + 0.35 * Math.abs(Math.sin(now + i * 0.45)) * Math.cos(now * 0.7 - i * 0.2);
-      const barH = Math.max(3, wave * h * 0.85);
-      vizCtx.fillRect(i * barW + 1, h - barH, barW - 2, barH);
-    }
-    return;
-  }
-  const spectrum = state.enhancer.getSpectrum();
-  const waveform = state.enhancer.getWaveform();
-  if (!spectrum || !state.enhancer.enabled) {
-    vizCtx.strokeStyle = 'rgba(128,128,128,.22)'; vizCtx.lineWidth = 1.5;
-    vizCtx.beginPath(); vizCtx.moveTo(0, h / 2); vizCtx.lineTo(w, h / 2); vizCtx.stroke();
-    return;
-  }
-  const bars = 36, step = Math.floor(spectrum.length / bars), barW = w / bars;
-  const grad = vizCtx.createLinearGradient(0, h, 0, 0);
-  grad.addColorStop(0, primaryColor); grad.addColorStop(1, accentColor);
-  vizCtx.fillStyle = grad;
-  for (let i = 0; i < bars; i++) {
-    let sum = 0;
-    for (let j = 0; j < step; j++) sum += spectrum[i * step + j];
-    const v = sum / step / 255;
-    const barH = Math.max(2, v * h * 0.9);
-    vizCtx.fillRect(i * barW + 1, h - barH, barW - 2, barH);
-  }
-  if (waveform) {
-    vizCtx.lineWidth = 1.5; vizCtx.strokeStyle = accentColor;
-    vizCtx.beginPath();
-    const sliceWidth = w / waveform.length;
-    let x = 0;
-    for (let i = 0; i < waveform.length; i += 4) {
-      const v = waveform[i] / 128.0, y = (v * h) / 2;
-      if (i === 0) vizCtx.moveTo(x, y); else vizCtx.lineTo(x, y);
-      x += sliceWidth * 4;
-    }
-    vizCtx.stroke();
-  }
-}
-drawVisualizer();
-
-/* Radio Browser */
-async function loadInitialStations() {
-  try { renderStations(await topStations(60)); }
-  catch (err) { renderStations(CORS_SAFE_FALLBACK.map((s, i) => Object.assign({}, s, { id: 'fallback-' + i, https: true }))); }
-}
-let searchDebounce = null;
-els.searchInput.addEventListener('input', () => { clearTimeout(searchDebounce); searchDebounce = setTimeout(runSearch, 450); });
-els.searchBtn.addEventListener('click', runSearch);
-els.searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
-els.countrySelect.addEventListener('change', runSearch);
-els.genreChips.addEventListener('click', (e) => {
-  const chip = e.target.closest('.chip'); if (!chip) return;
-  const tag = chip.dataset.tag;
-  const already = chip.classList.contains('is-active');
-  els.genreChips.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
-  state.activeTag = already ? '' : tag;
-  if (!already) chip.classList.add('is-active');
-  runSearch();
-});
-async function runSearch() {
-  els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Searching…</li>';
-  try {
-    renderStations(await searchStations({
-      q: els.searchInput.value.trim(),
-      tag: state.activeTag,
-      country: els.countrySelect.value,
-      limit: 60
-    }));
-  } catch (err) { els.stationList.innerHTML = '<li class="station-list__empty"><i class="fa-solid fa-triangle-exclamation"></i> Search failed</li>'; }
-}
-
-/* Converter */
-els.pickFile.addEventListener('click', () => els.fileInput.click());
-els.fileInput.addEventListener('change', async () => {
-  const f = els.fileInput.files && els.fileInput.files[0];
-  state.selectedFile = f || null;
-  if (!f) { els.convertBtn.disabled = !state.masterBuffer; els.convertStatus.textContent = ''; return; }
-  els.convertBtn.disabled = true;
-  els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Decoding ' + f.name + '…';
-  try {
-    const decoded = await decodeFile(f);
-    state.masterBuffer = decoded;
-    state.masterFileName = f.name.replace(/\.[^.]+$/, '');
-    els.convertBtn.disabled = false;
-    els.convertStatus.textContent = 'Loaded: ' + f.name + ' (' + decoded.sampleRate + ' Hz, ' + decoded.numberOfChannels + 'ch, ' + decoded.duration.toFixed(1) + 's)';
-    const url = URL.createObjectURL(f);
-    teardownAudio();
-    state.corsBlocked = false; state.currentStation = null;
-    markActiveStation(null); updateCorsBadge();
-    const el = createAudioElement(true);
-    wireAudioEvents(el);
-    els.audioHost.appendChild(el); state.audioEl = el;
-    els.npArt.innerHTML = '<i class="fa-solid fa-file-audio"></i>';
-    els.npName.textContent = f.name;
-    els.npSub.textContent = decoded.sampleRate + ' Hz · ' + decoded.numberOfChannels + 'ch · ' + decoded.duration.toFixed(1) + 's';
-    el.src = url;
-    try { await el.play(); } catch (_) {}
-    if (state.enhancer.enabled) { try { await state.enhancer.bind(el); } catch (_) {} }
-    updateEnhancerUI(); updateCtxBadge();
-  } catch (err) {
-    els.convertStatus.textContent = 'Decode failed: ' + err.message;
-    toast('Could not decode file: ' + err.message, 'err');
-  }
+els.ffmpegWarmBtn.addEventListener('click', async ()=>{
+  els.ffmpegWarmBtn.disabled = true;
+  els.ffmpegStateHint.textContent = 'FFmpeg: loading…';
+  try{
+    await loadFFmpeg((msg)=>{ els.ffmpegStateHint.textContent = 'FFmpeg: '+msg; });
+    els.ffmpegStateHint.textContent = 'FFmpeg: ready ('+(__ffmpegCoreLabel||'core')+')';
+    toast('FFmpeg.wasm ready.', 'ok');
+  }catch(err){
+    console.error(err);
+    els.ffmpegStateHint.textContent = 'FFmpeg: failed — LAME fallback active';
+    toast('FFmpeg load failed: '+err.message+' (LAME fallback active)', 'warn', 7000);
+  }finally{ els.ffmpegWarmBtn.disabled = false; }
 });
 
-els.convertBtn.addEventListener('click', async () => {
-  if (!state.masterBuffer) { toast('Load a file first.', 'warn'); return; }
+/* =====================================================================
+   CONVERTER WIRING
+   ===================================================================== */
+els.pickFile.addEventListener('click', ()=>els.fileInput.click());
+els.fileInput.addEventListener('change', async ()=>{
+  const file = els.fileInput.files && els.fileInput.files[0];
+  if(!file) return;
+  state.selectedFile = file;
+  state.masterFileName = file.name.replace(/\.[^.]+$/,'') || 'mastered-track';
+  els.convertBtn.disabled = false;
+  els.convertStatus.textContent = 'Decoding '+file.name+'…';
+  try{
+    const buf = await decodeFile(file);
+    state.masterBuffer = buf;
+    els.convertStatus.textContent = 'Decoded '+buf.duration.toFixed(2)+'s @ '+buf.sampleRate+' Hz · '+buf.numberOfChannels+' ch';
+  }catch(err){
+    els.convertStatus.textContent = 'Decode failed: '+err.message;
+    state.masterBuffer = null;
+    els.convertBtn.disabled = true;
+  }
+});
+els.convertBtn.addEventListener('click', async ()=>{
+  if(!state.masterBuffer) return;
   els.convertBtn.disabled = true;
   const fmt = els.formatSelect.value;
-  els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Preparing…';
-  try {
-    const result = await enhanceAndConvertBuffer(
-      state.masterBuffer, state.masterFileName, fmt,
-      state.enhancer._effectiveSettings(true), els.normalizeCheck.checked,
-      (msg) => { els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ' + msg; }
+  try{
+    const settings = state.enhancer._effectiveSettings(true);
+    const out = await enhanceAndConvertBuffer(
+      state.masterBuffer, state.masterFileName, fmt, settings,
+      els.normalizeCheck.checked,
+      (msg)=>{ els.convertStatus.textContent = msg; }
     );
-    downloadBlob(result.blob, result.filename);
-    els.convertStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Exported ' + result.filename + ' (' + (result.blob.size / 1024).toFixed(1) + ' KB)';
-    toast('Mastered: ' + result.filename, 'ok');
-  } catch (err) {
-    els.convertStatus.textContent = 'Export failed: ' + err.message;
-    toast('Export failed: ' + err.message, 'err');
-  } finally { els.convertBtn.disabled = false; }
+    downloadBlob(out.blob, out.filename);
+    els.convertStatus.textContent = '✅ Saved '+out.filename+' ('+Math.round(out.blob.size/1024)+' KB)';
+    toast('Saved '+out.filename, 'ok');
+  }catch(err){
+    els.convertStatus.textContent = '❌ '+err.message;
+    toast('Conversion failed: '+err.message, 'err');
+  }finally{ els.convertBtn.disabled = false; }
 });
 
-/* ==========================================================================
-   CODEC GRID — All formats, honest reporting with DSP fallback
-   ========================================================================== */
-async function renderCodecBadges() {
-  const tests = [
-    { name: 'MP3',           contentType: 'audio/mpeg',                      opts: { bitrate: 320000 } },
-    { name: 'AAC (M4A)',     contentType: 'audio/mp4; codecs="mp4a.40.2"',   opts: { bitrate: 256000 } },
-    { name: 'HE-AAC',        contentType: 'audio/mp4; codecs="mp4a.40.5"',   opts: { bitrate: 128000 } },
-    { name: 'Opus (WebM)',   contentType: 'audio/webm; codecs="opus"',       opts: { bitrate: 256000 } },
-    { name: 'Opus (OGG)',    contentType: 'audio/ogg; codecs="opus"',        opts: { bitrate: 256000 } },
-    { name: 'Vorbis (OGG)',  contentType: 'audio/ogg; codecs="vorbis"',      opts: { bitrate: 192000 } },
-    { name: 'FLAC',          contentType: 'audio/flac',                      opts: { bitrate: 1000000 } },
-    { name: 'WAV (PCM)',     contentType: 'audio/wav',                       opts: { bitrate: 1536000 } },
-    { name: 'E-AC-3 (DD+)',  contentType: 'audio/mp4; codecs="ec-3"',        opts: { channels: '6', bitrate: 448000, spatial: true } },
-    { name: 'AC-3',          contentType: 'audio/mp4; codecs="ac-3"',        opts: { channels: '6', bitrate: 448000 } },
-    { name: 'HLS.js engine', contentType: null, custom: () => !!(window.Hls && window.Hls.isSupported()) },
-    { name: 'Shaka Player',  contentType: null, custom: () => !!(window.shaka && shaka.Player && shaka.Player.isBrowserSupported()) }
+/* =====================================================================
+   AI TUNER
+   ===================================================================== */
+function heuristicCurveForPrompt(text){
+  const q = (text||'').toLowerCase();
+  if(q.match(/hearing|accessib|impaired|hard of hearing/)) return {bass:-3,presence:8,treble:5,comp:8,thresh:-26,makeup:1.35,atmos:0.05,summary:'Hearing-impaired speech boost.'};
+  if(q.match(/podcast|voice|speech|news|audiobook|lecture|sermon|talk|interview/)) return {bass:-1.5,presence:5.5,treble:2,comp:6,thresh:-28,makeup:1.22,atmos:0.12,summary:'Speech clarity curve.'};
+  if(q.match(/cinema|film|movie|theat|surround/)) return {bass:7,presence:3,treble:4,comp:10,thresh:-22,makeup:1.05,atmos:0.70,summary:'Cinematic Atmos height.'};
+  if(q.match(/bass|edm|synthwave|synth|club|hip.?hop|rap|dnb|techno|house|trap/)) return {bass:8.5,presence:2.5,treble:3.5,comp:12,thresh:-22,makeup:1.00,atmos:0.48,summary:'Deep low-end punch.'};
+  if(q.match(/night|late|quiet|sleep|calm|relax/)) return {bass:2.5,presence:1.5,treble:1,comp:18,thresh:-38,makeup:1.55,atmos:0.25,summary:'Nighttime leveling.'};
+  if(q.match(/classical|acoustic|jazz|orchestral|piano|chamber|string/)) return {bass:3,presence:2,treble:4.5,comp:2,thresh:-18,makeup:1.05,atmos:0.48,summary:'Open acoustic detail.'};
+  if(q.match(/rock|metal|punk|grunge|indie/)) return {bass:5,presence:4.5,treble:5,comp:10,thresh:-22,makeup:1.10,atmos:0.30,summary:'Guitar presence.'};
+  if(q.match(/vocal|pop|rnb|r&b|soul|ballad|love|romantic/)) return {bass:3,presence:5,treble:3.5,comp:8,thresh:-26,makeup:1.15,atmos:0.35,summary:'Forward vocals.'};
+  if(q.match(/country|folk|blues|americana/)) return {bass:3.5,presence:3.5,treble:4,comp:6,thresh:-22,makeup:1.08,atmos:0.32,summary:'Natural acoustic balance.'};
+  if(q.match(/lo.?fi|chill|ambient|study|focus|background/)) return {bass:4,presence:1,treble:1,comp:14,thresh:-32,makeup:1.25,atmos:0.45,summary:'Lo-fi chill.'};
+  if(q.match(/headphone|earbud|iem|in.?ear/)) return {bass:4,presence:3,treble:3,comp:8,thresh:-24,makeup:1.10,atmos:0.42,summary:'Headphone-optimized.'};
+  if(q.match(/speaker|stereo|soundbar|car|auto|vehicle/)) return {bass:6,presence:3.5,treble:3,comp:12,thresh:-24,makeup:1.05,atmos:0.22,summary:'Speaker-optimized.'};
+  if(q.match(/studio|monitor|reference|neutral|flat/)) return {bass:1.5,presence:2,treble:2,comp:3,thresh:-20,makeup:1.02,atmos:0.15,summary:'Neutral reference.'};
+  if(q.match(/reggae|dub|dancehall|soca/)) return {bass:7,presence:2,treble:3,comp:10,thresh:-24,makeup:1.05,atmos:0.40,summary:'Dub-heavy bass.'};
+  if(q.match(/gospel|church|worship|choir/)) return {bass:2,presence:5,treble:3.5,comp:8,thresh:-26,makeup:1.18,atmos:0.42,summary:'Choir balance.'};
+  if(q.match(/karaoke|sing|vocal practice/)) return {bass:2,presence:6,treble:3,comp:6,thresh:-28,makeup:1.15,atmos:0.20,summary:'Karaoke vocal-forward.'};
+  if(q.match(/asmr|whisper|binaural|3d/)) return {bass:0,presence:4,treble:4,comp:3,thresh:-24,makeup:1.20,atmos:0.65,summary:'Binaural ASMR.'};
+  if(q.match(/audiophile|hi.?res|hi.?fi|lossless/)) return {bass:2,presence:2,treble:3,comp:2,thresh:-18,makeup:1.02,atmos:0.30,summary:'Audiophile neutral.'};
+  return {bass:5.5,presence:3,treble:4,comp:10,thresh:-24,makeup:1.08,atmos:0.38,summary:'Balanced studio + Atmos.'};
+}
+const AI_PROVIDERS = [
+  {name:'Pollinations/OpenAI', build:(p)=>'https://text.pollinations.ai/'+encodeURIComponent(p)+'?model=openai'},
+  {name:'Pollinations/Mistral', build:(p)=>'https://text.pollinations.ai/'+encodeURIComponent(p)+'?model=mistral'},
+  {name:'Pollinations/Llama', build:(p)=>'https://text.pollinations.ai/'+encodeURIComponent(p)+'?model=llama'},
+  {name:'Pollinations/Qwen', build:(p)=>'https://text.pollinations.ai/'+encodeURIComponent(p)+'?model=qwen-coder'},
+  {name:'Pollinations/Deepseek', build:(p)=>'https://text.pollinations.ai/'+encodeURIComponent(p)+'?model=deepseek'}
+];
+async function askAiCurve(prompt){
+  const sys = `You are an audio mastering assistant. Return ONLY JSON: {"bass":dB(-12..15),"presence":dB(-12..12),"treble":dB(-12..15),"comp":ratio(0..20),"thresh":dB(-50..0),"makeup":(0.5..2),"atmos":(0..1),"summary":string}\nRequest: ${prompt}`;
+  for(const provider of AI_PROVIDERS){
+    try{
+      const controller = new AbortController();
+      const t = setTimeout(()=>controller.abort(), 8000);
+      const res = await fetch(provider.build(sys), {signal: controller.signal});
+      clearTimeout(t);
+      if(!res.ok) continue;
+      const text = await res.text();
+      const jsonMatch = text.match(/\{[\s\S]*?\}/);
+      if(!jsonMatch) continue;
+      const parsed = JSON.parse(jsonMatch[0]);
+      if(typeof parsed.bass !== 'number') continue;
+      return {...parsed, _via: provider.name};
+    }catch(err){ console.warn('AI provider failed', provider.name, err); }
+  }
+  return {...heuristicCurveForPrompt(prompt), _via:'heuristic'};
+}
+function applyAiCurve(curve){
+  const bass = clamp(curve.bass, -12, 15);
+  const presence = clamp(curve.presence, -12, 12);
+  const treble = clamp(curve.treble, -12, 15);
+  const comp = clamp(curve.comp, 0, 20);
+  const thresh = clamp(curve.thresh ?? -24, -50, 0);
+  const makeup = clamp(curve.makeup, 0.5, 2);
+  const atmos = clamp(curve.atmos, 0, 1);
+  els.sBass.value = bass;
+  els.sPresence.value = presence;
+  els.sTreble.value = treble;
+  els.sComp.value = comp;
+  els.sThresh.value = thresh;
+  els.sMakeup.value = makeup;
+  els.sWidth.value = atmos;
+  syncSliderLabels();
+  pushSliderOverrides();
+  if(!state.enhancer.enabled && state.audioEl) state.enhancer.setEnabled(true, state.audioEl).then(updateEnhancerUI).catch(()=>{});
+}
+async function runAiTuner(prompt){
+  if(!prompt){ toast('Enter a prompt or pick a preset.', 'warn'); return; }
+  els.aiTunerStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Thinking…';
+  try{
+    const curve = await askAiCurve(prompt);
+    applyAiCurve(curve);
+    els.aiTunerStatus.innerHTML = '<b>'+(curve.summary||'Applied')+'</b><br><small>via '+(curve._via||'unknown')+'</small>';
+    toast('AI curve applied.', 'ok');
+  }catch(e){
+    els.aiTunerStatus.textContent = 'AI error: '+e.message+' — using heuristic.';
+    applyAiCurve(heuristicCurveForPrompt(prompt));
+  }
+}
+els.aiTunePromptBtn.addEventListener('click', ()=>runAiTuner(els.aiTunerInput.value.trim()));
+els.aiTuneCurrentBtn.addEventListener('click', ()=>{
+  const station = state.currentStation;
+  const prompt = station
+    ? `Optimize for station "${station.name}" (${station.country}, ${station.tags||''}), on headphones`
+    : 'Optimize audio for general headphone listening';
+  runAiTuner(prompt);
+});
+els.aiQuickPresets.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.chip'); if(!btn) return;
+  els.aiTunerInput.value = btn.dataset.ai;
+  runAiTuner(btn.dataset.ai);
+});
+
+/* =====================================================================
+   CODEC + DOLBY BADGES
+   ===================================================================== */
+(function renderCodecBadges(){
+  const container = els.codecBadges; if(!container) return;
+  const probes = [
+    {name:'MP3',     mime:'audio/mpeg'},
+    {name:'AAC/M4A', mime:'audio/mp4; codecs="mp4a.40.2"'},
+    {name:'OGG',     mime:'audio/ogg; codecs="vorbis"'},
+    {name:'Opus',    mime:'audio/ogg; codecs="opus"'},
+    {name:'FLAC',    mime:'audio/flac'},
+    {name:'WAV',     mime:'audio/wav'},
+    {name:'WebM',    mime:'audio/webm; codecs="opus"'}
   ];
-  const results = await Promise.all(tests.map(async (t) => {
-    if (t.contentType === null) {
-      let ok = false; try { ok = !!t.custom(); } catch (_) {}
-      return { name: t.name, hw: ok, mse: null, native: null, mc: null, supported: ok };
-    }
-    const p = await probeAudioCodec(t.contentType, t.opts || {});
-    return { name: t.name, hw: p.hwAvailable, mse: p.mse, native: p.native, mc: (p.mcFile || p.mcSource), supported: p.supported };
-  }));
-  els.codecBadges.innerHTML = '';
-  for (const r of results) {
+  container.innerHTML = '';
+  for(const p of probes){
+    const a = document.createElement('audio');
+    const supported = a.canPlayType(p.mime);
     const card = document.createElement('div');
-    // "is-supported" always true because DSP fallback exists
-    card.className = 'codec-card is-supported';
-    let detail = '';
-    if (r.mse !== null) {
-      detail = (r.mse ? 'MSE ✓' : 'MSE ✗') + ' · ' + (r.native ? 'Nat ✓' : 'Nat ✗') + ' · ' + (r.mc ? 'HW ✓' : 'HW ✗');
+    card.className = 'codec-card ' + (supported ? 'is-supported' : 'is-partial');
+    card.innerHTML = '<div class="codec-card__name">'+p.name+'</div><div class="codec-card__state">'+
+      (supported==='probably'?'✓ Supported':supported==='maybe'?'~ Maybe':'✗ Unavailable')+'</div>';
+    container.appendChild(card);
+  }
+})();
+
+(async function probeDolby(){
+  try{
+    const grid = els.dolbyGrid;
+    if(!grid) return;
+    if(!('mediaCapabilities' in navigator)){ grid.innerHTML=''; return; }
+    const codecs = [
+      {name:'DD+ Atmos', mime:'audio/mp4; codecs="ec-3"', spatial:true},
+      {name:'AC-4', mime:'audio/mp4; codecs="ac-4.02.01.01"', spatial:false},
+      {name:'AC-4 Atmos', mime:'audio/mp4; codecs="ac-4.02.01.02"', spatial:true}
+    ];
+    grid.innerHTML = '';
+    let anyHW = false;
+    for(const c of codecs){
+      let hw = false;
+      try{
+        const r = await navigator.mediaCapabilities.decodingInfo({
+          type:'media-source', audio:{contentType:c.mime, channels:'16', spatialRendering:c.spatial}
+        });
+        hw = !!r.supported;
+      }catch(_){}
+      if(hw) anyHW = true;
+      const card = document.createElement('div');
+      card.className = 'codec-card ' + (hw ? 'is-supported' : 'is-partial');
+      card.innerHTML = '<div class="codec-card__name">'+c.name+'</div><div class="codec-card__state">'+
+        (hw?'✓ HW + DSP':'✓ DSP only')+'</div>';
+      grid.appendChild(card);
     }
-    card.innerHTML =
-      '<div class="codec-card__name">' + r.name + '</div>' +
-      '<div class="codec-card__state">' + (r.hw ? 'HW Supported' : 'Via DSP') + '</div>' +
-      (detail ? '<div style="font-size:.62rem;color:var(--tw-muted);margin-top:3px;">' + detail + '</div>' : '');
-    els.codecBadges.appendChild(card);
-  }
-}
+    if(anyHW){
+      els.atmosBadge.className = 'badge badge--ok';
+      els.atmosBadge.innerHTML = '<i class="fa-solid fa-headphones"></i> Atmos HW Decoder';
+    } else {
+      els.atmosBadge.className = 'badge badge--ok';
+      els.atmosBadge.innerHTML = '<i class="fa-solid fa-headphones"></i> Atmos DSP Active';
+    }
+  }catch(e){ console.warn('Dolby probe failed', e); }
+})();
 
-/* Dolby Grid — never shows "No", always "Via DSP" when HW absent */
-async function renderDolbyGrid() {
-  const grid = els.dolbyGrid;
-  if (!grid) return;
-  grid.innerHTML = '<div class="codec-card"><div class="codec-card__name">Probing Dolby…</div><div class="codec-card__state"><i class="fa-solid fa-circle-notch fa-spin"></i></div></div>';
-  let full = {}, quick = { ddPlusAtmos: false, ac4Atmos: false, mediaCapabilities: 'mediaCapabilities' in navigator };
-  try { full = await getFullDolbySupport(); } catch (_) {}
-  try { quick = await checkDolbySupport(); } catch (_) {}
-  updateAtmosBadge(quick);
-  grid.innerHTML = '';
-  const addCard = (name, s) => {
-    const card = document.createElement('div');
-    card.className = 'codec-card is-supported';
-    const hwMark = s.hwAvailable || s.mcSupported || s.mseSupported ? '✓' : '✗';
-    const mseMark = s.mseSupported ? '✓' : '✗';
-    const natMark = s.nativeSupported ? '✓' : '✗';
-    const drmMark = s.drmSupported ? '✓' : '✗';
-    const stateLabel = s.hwAvailable || s.mcSupported || s.mseSupported ? 'HW Supported' : 'Via DSP Fallback';
-    card.innerHTML =
-      '<div class="codec-card__name">' + name + '</div>' +
-      '<div class="codec-card__state">' + stateLabel + '</div>' +
-      '<div style="font-size:.62rem;color:var(--tw-muted);margin-top:3px;">' +
-        'MSE ' + mseMark + ' · Nat ' + natMark + ' · HW ' + hwMark + ' · DRM ' + drmMark + ' · DSP ✓' +
-      '</div>';
-    grid.appendChild(card);
-  };
-  if (Object.keys(full).length) {
-    Object.entries(full).forEach(([name, s]) => addCard(name, s));
-  } else {
-    addCard('DD+ Atmos',  { mcSupported: quick.ddPlusAtmos, mseSupported: false, nativeSupported: false, drmSupported: false, hwAvailable: quick.ddPlusAtmos });
-    addCard('AC-4 Atmos', { mcSupported: quick.ac4Atmos,    mseSupported: false, nativeSupported: false, drmSupported: false, hwAvailable: quick.ac4Atmos });
-  }
-}
-
-/* Init */
-(async function init() {
+/* =====================================================================
+   INIT
+   ===================================================================== */
+(async function init(){
   loadTheme();
-  renderCodecBadges();
-  if (window.shaka) { try { shaka.polyfill.installAll(); } catch (_) {} }
-  const libs = [];
-  if (window.Hls) libs.push('HLS.js ✓'); else libs.push('HLS.js ✗');
-  if (window.shaka) libs.push('Shaka ✓'); else libs.push('Shaka ✗');
-  els.streamEngineStatus.textContent = 'Engines: ' + libs.join(' · ') + ' — URLs auto-detected by extension.';
-  await loadInitialStations();
-  await renderDolbyGrid();
   updateCtxBadge();
-  updateCorsBadge();
   updateEnhancerUI();
+  updateCorsBadge();
+  updatePlayState();
+  initVisualizer();
+
+  try{
+    const list = await topStations(40);
+    renderStations(list);
+  }catch(e){
+    toast('Failed to load stations: '+e.message, 'err');
+  }
+
+  // expose for debugging
+  window.HexAudio = {
+    state, els, toast, downloadBlob,
+    get audioEl(){ return state.audioEl; },
+    get enhancer(){ return state.enhancer; },
+    get viz(){ return state.viz; },
+    get currentStation(){ return state.currentStation; },
+    convertBlobToMp3_320, loadFFmpeg, startCapture, stopCapture, fetchAndConvertUrl, exportVideo
+  };
 })();
 
 })();
